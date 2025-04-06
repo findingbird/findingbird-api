@@ -3,14 +3,16 @@ import eslint from '@eslint/js';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 import simpleImportSort from 'eslint-plugin-simple-import-sort';
-import prettier from 'eslint-plugin-prettier';
 import moduleResolver from 'eslint-plugin-module-resolver';
+import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import eslintPluginPrettier from 'eslint-plugin-prettier';
 
 export default tseslint.config(
   {
     ignores: ['eslint.config.mjs'],
   },
   eslint.configs.recommended,
+  eslintPluginPrettierRecommended,
   ...tseslint.configs.recommendedTypeChecked,
   {
     files: ['**/*.ts'],
@@ -31,7 +33,7 @@ export default tseslint.config(
     files: ['**/*.ts'],
     plugins: {
       'simple-import-sort': simpleImportSort,
-      prettier: prettier,
+      prettier: eslintPluginPrettier,
       'module-resolver': moduleResolver,
     },
     rules: {
@@ -64,7 +66,7 @@ export default tseslint.config(
           endOfLine: 'auto',
         },
       ],
-      
+
       'no-console': 'warn',
       'no-debugger': 'warn',
       'no-var': 'warn',
@@ -76,6 +78,7 @@ export default tseslint.config(
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'warn',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
     },
   }
 );
