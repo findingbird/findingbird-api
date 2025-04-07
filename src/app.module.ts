@@ -1,3 +1,5 @@
+import '~/config/dayjs.config';
+
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
