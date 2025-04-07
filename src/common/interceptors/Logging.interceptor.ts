@@ -15,14 +15,14 @@ export class LoggingInterceptor implements NestInterceptor {
     const body = req.body as Record<string, unknown>;
     this.logger.log(`[HTTP Request] ${method} ${url}`);
     if (body && Object.keys(body).length > 0) {
-      this.logger.debug(`Request Data: ${JSON.stringify(body)}`);
+      this.logger.debug(`Request Data:\n${JSON.stringify(body, null, 2)}`);
     }
 
     return next.handle().pipe(
       tap((response: unknown) => {
         const duration = Date.now() - start;
         this.logger.log(`[HTTP Response] ${method} ${url} (${duration}ms)`);
-        this.logger.debug(`Response Data: ${JSON.stringify(response)}`);
+        this.logger.debug(`Response Data:\n${JSON.stringify(response, null, 2)}`);
       }),
       catchError((error: unknown) => {
         const duration = Date.now() - start;
@@ -32,7 +32,7 @@ export class LoggingInterceptor implements NestInterceptor {
           this.logger.error(`Error Message: ${error.message}`);
           this.logger.error(`Stack Trace:\n${error.stack}`);
         } else {
-          this.logger.error(`Error Object: ${JSON.stringify(error)}`);
+          this.logger.error(`Error Object:\n${JSON.stringify(error, null, 2)}`);
         }
 
         return throwError(() => error);

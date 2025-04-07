@@ -12,13 +12,12 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
     const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message = exception instanceof HttpException ? exception.getResponse() : 'Internal server error';
+    const error = exception instanceof HttpException ? exception.getResponse() : 'Internal server error';
 
     response.status(status).json({
-      success: false,
       timestamp: DateUtils.format(DateUtils.now()),
       path: request.url,
-      message: typeof message === 'object' ? message : { error: message },
+      error: typeof error === 'object' ? error : { error },
     });
   }
 }
