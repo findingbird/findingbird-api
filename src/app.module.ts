@@ -10,6 +10,8 @@ import { AppService } from '~/app.service';
 import { GlobalExceptionFilter } from '~/common/filters/Global-exception.filter';
 import { LoggingInterceptor } from '~/common/interceptors/Logging.interceptor';
 import { TypeOrmConfig } from '~/config/typeorm.config';
+import { AuthModule } from '~/modules/auth/auth.module';
+import { UserModule } from '~/modules/user/user.module';
 
 @Module({
   imports: [
@@ -20,6 +22,8 @@ import { TypeOrmConfig } from '~/config/typeorm.config';
     TypeOrmModule.forRootAsync({
       useClass: TypeOrmConfig,
     }),
+    UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
