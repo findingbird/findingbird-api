@@ -14,8 +14,8 @@ import { UserService } from '~/modules/user/application/services/user.service';
 
 @Injectable()
 export class AuthService {
-  private accessExpiresIn: number;
-  private refreshExpiresIn: number;
+  public accessExpiresInSecond: number;
+  public refreshExpiresInSecond: number;
 
   constructor(
     @Inject(AUTH_REPOSITORY)
@@ -24,8 +24,9 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService
   ) {
-    this.accessExpiresIn = (this.configService.get<string>('NODE_ENV') === 'development' ? 60 : 15) * 60; // 1시간 or 15분
-    this.refreshExpiresIn = (this.configService.get<string>('NODE_ENV') === 'development' ? 7 : 30) * 24 * 60 * 60; // 7일 or 30일
+    this.accessExpiresInSecond = (this.configService.get<string>('NODE_ENV') === 'development' ? 60 : 15) * 60; // 1시간 or 15분
+    this.refreshExpiresInSecond =
+      (this.configService.get<string>('NODE_ENV') === 'development' ? 7 : 30) * 24 * 60 * 60; // 7일 or 30일
   }
 
   async kakaoLogin(dto: KakaoLoginDto): Promise<TokenDto> {
@@ -36,7 +37,7 @@ export class AuthService {
       auth = await this.createAuth({ userId: user.id, kakaoId: dto.kakaoId });
     }
     const token = this.generateToken(auth);
-    auth.saveRefreshToken(token.refreshToken, DateUtils.now().add(this.refreshExpiresIn, 'second'));
+    auth.saveRefreshToken(token.refreshToken, DateUtils.now().add(this.refreshExpiresInSecond, 'second'));
     await this.authRepository.save(auth);
 
     return token;
@@ -49,7 +50,7 @@ export class AuthService {
     }
     auth.verifyRefreshToken(refreshToken);
     const token = this.generateToken(auth);
-    auth.saveRefreshToken(token.refreshToken, DateUtils.now().add(this.refreshExpiresIn, 'second'));
+    auth.saveRefreshToken(token.refreshToken, DateUtils.now().add(this.refreshExpiresInSecond, 'second'));
     await this.authRepository.save(auth);
 
     return token;
@@ -71,7 +72,7 @@ export class AuthService {
   private generateAccessToken(userId: string, kakaoId: string): string {
     const payload: JwtPayload = { userId, kakaoId };
     return this.jwtService.sign(payload, {
-      expiresIn: this.accessExpiresIn,
+      expiresIn: this.accessExpiresInSecond,
       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
     });
   }
@@ -79,7 +80,7 @@ export class AuthService {
   private generateRefreshToken(userId: string, kakaoId: string): string {
     const payload: JwtPayload = { userId, kakaoId };
     return this.jwtService.sign(payload, {
-      expiresIn: this.refreshExpiresIn,
+      expiresIn: this.refreshExpiresInSecond,
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
     });
   }
