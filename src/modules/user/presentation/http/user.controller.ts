@@ -1,5 +1,7 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 
+import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
+import { UserRequest } from '~/common/interfaces/user-request.interface';
 import { UserService } from '~/modules/user/application/services/user.service';
 import { User } from '~/modules/user/domain/models/user';
 
@@ -7,8 +9,10 @@ import { User } from '~/modules/user/domain/models/user';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get('/:id')
-  async getUserById(@Param('id') id: string): Promise<User> {
-    return await this.userService.getUserById({ userId: id });
+  @Get('/')
+  @UseGuards(JwtAuthGuard)
+  async getUserById(@Req() req: UserRequest): Promise<User> {
+    const userId = req.user.userId;
+    return await this.userService.getUserById({ userId });
   }
 }

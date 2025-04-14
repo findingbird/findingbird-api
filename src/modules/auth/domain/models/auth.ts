@@ -91,16 +91,20 @@ export class Auth extends DomainEntity<AuthProps> {
     return tokenVO;
   }
 
-  public verifyRefreshToken(token: string): RefreshTokenVO {
-    const foundToken = this.props.refreshTokens.find((t) => t.token === token);
+  public verifyRefreshToken(refreshToken: string): void {
+    const foundToken = this.props.refreshTokens.find((t) => t.token === refreshToken);
     if (!foundToken) {
       throw new NotFoundError(Auth.domainName, 'Refresh token not found');
     }
     if (foundToken.isExpired()) {
       throw new UnauthorizedError(Auth.domainName, 'Refresh token expired');
     }
-    this.removeExpiredRefreshToken();
-    return foundToken;
+    // 토큰은 일회용
+    this.removeRefreshToken(refreshToken);
+  }
+
+  private removeRefreshToken(refreshToken: string): void {
+    this.props.refreshTokens = this.props.refreshTokens.filter((t) => t.token !== refreshToken);
   }
 
   private removeExpiredRefreshToken(): void {
