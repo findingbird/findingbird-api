@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
+import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { DateUtils } from '~/common/utils/Date.utils';
 import { CreateAuthDto } from '~/modules/auth/application/dtos/create-auth.dto';
 import { KakaoLoginDto } from '~/modules/auth/application/dtos/kakao-login.dto';
@@ -41,6 +42,19 @@ export class AuthService {
     return token;
   }
 
+  async refreshToken(userId: string, refreshToken: string): Promise<TokenDto> {
+    const auth = await this.authRepository.findByUserId(userId);
+    if (!auth) {
+      throw new NotFoundError(Auth.domainName);
+    }
+    auth.verifyRefreshToken(refreshToken);
+    const token = this.generateToken(auth);
+    auth.saveRefreshToken(token.refreshToken, DateUtils.now().add(this.refreshExpiresIn, 'second'));
+    await this.authRepository.save(auth);
+
+    return token;
+  }
+
   async createAuth(dto: CreateAuthDto): Promise<Auth> {
     const auth = Auth.createNew({ userId: dto.userId, kakaoId: dto.kakaoId });
     await this.authRepository.save(auth);
@@ -48,16 +62,25 @@ export class AuthService {
   }
 
   private generateToken(auth: Auth): TokenDto {
-    const payload: JwtPayload = { userId: auth.userId, kakaoId: auth.kakaoId };
-    const accessToken = this.jwtService.sign(payload, {
+    const accessToken = this.generateAccessToken(auth.userId, auth.kakaoId);
+    const refreshToken = this.generateRefreshToken(auth.userId, auth.kakaoId);
+
+    return { accessToken, refreshToken };
+  }
+
+  private generateAccessToken(userId: string, kakaoId: string): string {
+    const payload: JwtPayload = { userId, kakaoId };
+    return this.jwtService.sign(payload, {
       expiresIn: this.accessExpiresIn,
       secret: this.configService.get<string>('JWT_ACCESS_SECRET'),
     });
-    const refreshToken = this.jwtService.sign(payload, {
+  }
+
+  private generateRefreshToken(userId: string, kakaoId: string): string {
+    const payload: JwtPayload = { userId, kakaoId };
+    return this.jwtService.sign(payload, {
       expiresIn: this.refreshExpiresIn,
       secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
     });
-
-    return { accessToken, refreshToken };
   }
 }
