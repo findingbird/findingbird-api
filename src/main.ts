@@ -28,8 +28,10 @@ async function bootstrap(): Promise<void> {
 
   const config = app.get(ConfigService);
   const port = parseInt(config.get<string>('PORT') ?? '3000');
+  const clientUrl = config.get<string>('CLIENT_URL') || 'http://localhost:3000';
+  config.set('CLIENT_URL', clientUrl);
   app.enableCors({
-    origin: config.get<string>('CLIENT_URL') || 'http://localhost:3000',
+    origin: config.get<string>('CLIENT_URL'),
     credentials: true,
   });
   await app.listen(port);
