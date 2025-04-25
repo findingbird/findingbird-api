@@ -1,12 +1,13 @@
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsRelations, Repository } from 'typeorm';
 
 import { Auth } from '~/modules/auth/domain/models/auth';
 import { IAuthRepository } from '~/modules/auth/domain/repositories/auth.repository.interface';
 import { AuthEntity } from '~/modules/auth/infrastructure/entities/auth.entity';
-import { RefreshTokenEntity } from '~/modules/auth/infrastructure/entities/refreshToken.entity';
 import { AuthMapper } from '~/modules/auth/infrastructure/mappers/auth.mapper';
 
+@Injectable()
 export class AuthRepository implements IAuthRepository {
   private authFindOptionsRelation: FindOptionsRelations<AuthEntity> = {
     refreshTokens: true,
@@ -14,9 +15,7 @@ export class AuthRepository implements IAuthRepository {
 
   constructor(
     @InjectRepository(AuthEntity)
-    private readonly authRepository: Repository<AuthEntity>,
-    @InjectRepository(RefreshTokenEntity)
-    private readonly refreshTokenRepository: Repository<RefreshTokenEntity>
+    private readonly authRepository: Repository<AuthEntity>
   ) {}
 
   async findByKakaoId(kakaoId: string): Promise<Auth | null> {
