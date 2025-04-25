@@ -6,6 +6,7 @@ import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { DateUtils } from '~/common/utils/Date.utils';
 import { CreateAuthDto } from '~/modules/auth/application/dtos/create-auth.dto';
 import { KakaoLoginDto } from '~/modules/auth/application/dtos/kakao-login.dto';
+import { RefreshTokenDto } from '~/modules/auth/application/dtos/refresh-token.dto';
 import { TokenDto } from '~/modules/auth/application/dtos/token.dto';
 import { JwtPayload } from '~/modules/auth/application/interfaces/jwt-payload.interface';
 import { Auth } from '~/modules/auth/domain/models/auth';
@@ -30,11 +31,12 @@ export class AuthService {
   }
 
   async kakaoLogin(dto: KakaoLoginDto): Promise<TokenDto> {
-    let auth = await this.authRepository.findByKakaoId(dto.kakaoId);
+    const { kakaoId } = dto;
+    let auth = await this.authRepository.findByKakaoId(kakaoId);
     if (!auth) {
       // 사용자가 없으면 새로 생성
       const user = await this.userService.createUser();
-      auth = await this.createAuth({ userId: user.id, kakaoId: dto.kakaoId });
+      auth = await this.createAuth({ userId: user.id, kakaoId });
     }
     const token = this.generateToken(auth);
     auth.saveRefreshToken(token.refreshToken, DateUtils.now().add(this.refreshExpiresInSecond, 'second'));
@@ -43,7 +45,8 @@ export class AuthService {
     return token;
   }
 
-  async refreshToken(userId: string, refreshToken: string): Promise<TokenDto> {
+  async refreshToken(dto: RefreshTokenDto): Promise<TokenDto> {
+    const { userId, refreshToken } = dto;
     const auth = await this.authRepository.findByUserId(userId);
     if (!auth) {
       throw new NotFoundError(Auth.domainName);
@@ -57,7 +60,8 @@ export class AuthService {
   }
 
   async createAuth(dto: CreateAuthDto): Promise<Auth> {
-    const auth = Auth.createNew({ userId: dto.userId, kakaoId: dto.kakaoId });
+    const { userId, kakaoId } = dto;
+    const auth = Auth.createNew({ userId, kakaoId });
     await this.authRepository.save(auth);
     return auth;
   }
