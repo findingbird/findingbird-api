@@ -12,6 +12,7 @@ import { GlobalExceptionFilter } from '~/common/filters/Global-exception.filter'
 import { LoggingInterceptor } from '~/common/interceptors/Logging.interceptor';
 import { TypeOrmConfig } from '~/config/typeorm.config';
 import { AuthModule } from '~/modules/auth/auth.module';
+import { FileModule } from '~/modules/file/file.module';
 import { UserModule } from '~/modules/user/user.module';
 
 @Module({
@@ -25,6 +26,7 @@ import { UserModule } from '~/modules/user/user.module';
     }),
     UserModule,
     AuthModule,
+    FileModule,
   ],
   controllers: [AppController],
   providers: [
