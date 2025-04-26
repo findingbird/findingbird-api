@@ -4,6 +4,7 @@ import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { FileService } from '~/modules/file/application/services/file.service';
 import { CreateRecordDto } from '~/modules/record/application/dtos/create-record.dto';
 import { GetRecordByIdDto } from '~/modules/record/application/dtos/get-record-by-id.dto';
+import { GetRecordsByMonthDto } from '~/modules/record/application/dtos/get-records-by-month.dto';
 import { Record } from '~/modules/record/domain/models/record';
 import { IRecordRepository, RECORD_REPOSITORY } from '~/modules/record/domain/repositories/record.repository.interface';
 
@@ -49,5 +50,10 @@ export class RecordService {
     }
 
     return record;
+  }
+
+  async getRecordsByMonth(dto: GetRecordsByMonthDto): Promise<Record[]> {
+    const { userId, year, month } = dto;
+    return this.recordRepository.findMany({ userId, year, month });
   }
 }
