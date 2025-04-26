@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsString, ValidateIf } from 'class-validator';
 
 export class CreateRecordRequestDto {
@@ -6,7 +7,13 @@ export class CreateRecordRequestDto {
     description: '발견한 새의 이름 (알 수 없는 경우 null)',
     type: 'string',
     example: '참새',
-    nullable: true,
+    required: false,
+  })
+  @Transform(({ value }: { value: string | undefined }) => {
+    if (value === undefined || value === '') {
+      return null;
+    }
+    return value;
   })
   @ValidateIf((o: CreateRecordRequestDto) => o.name !== null)
   @IsString()
