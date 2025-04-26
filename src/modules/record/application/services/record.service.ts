@@ -1,7 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { FileService } from '~/modules/file/application/services/file.service';
 import { CreateRecordDto } from '~/modules/record/application/dtos/create-record.dto';
+import { GetRecordByIdDto } from '~/modules/record/application/dtos/get-record-by-id.dto';
 import { Record } from '~/modules/record/domain/models/record';
 import { IRecordRepository, RECORD_REPOSITORY } from '~/modules/record/domain/repositories/record.repository.interface';
 
@@ -35,6 +37,16 @@ export class RecordService {
       isSuggested,
     });
     await this.recordRepository.save(record);
+
+    return record;
+  }
+
+  async getRecordById(dto: GetRecordByIdDto): Promise<Record> {
+    const { recordId } = dto;
+    const record = await this.recordRepository.findById(recordId);
+    if (!record) {
+      throw new NotFoundError(Record.domainName, recordId);
+    }
 
     return record;
   }
