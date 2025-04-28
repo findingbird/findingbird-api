@@ -35,4 +35,4 @@ jobs:
             echo "${{ secrets.ENV_FILE }}" > .env
             yarn install
             yarn build
-            pm2 reload all || pm2 start dist/main.js --name findingbird
+            pm2 restart findingbird || pm2 start dist/main.js --name findingbird
