@@ -23,6 +23,18 @@ jobs:
       - name: Build app
         run: yarn build
 
+      - name: Create temporary .env file
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Copy .env file to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          source: ".env"
+          target: "/home/ubuntu/findingbird-api/.env"
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -32,7 +44,6 @@ jobs:
           script: |
             cd /home/ubuntu/findingbird-api
             git pull origin main
-            echo "${{ secrets.ENV_FILE }}" > .env
             yarn install
             yarn build
             pm2 restart findingbird || pm2 start dist/main.js --name findingbird
