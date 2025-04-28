@@ -30,9 +30,9 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /home/ubuntu/your-project-folder
+            cd /home/ubuntu/findingbird-api
             git pull origin main
             echo "${{ secrets.ENV_FILE }}" > .env
             yarn install
             yarn build
-            pm2 reload all || pm2 start dist/main.js --name your-app-name
+            pm2 reload all || pm2 start dist/main.js --name findingbird
