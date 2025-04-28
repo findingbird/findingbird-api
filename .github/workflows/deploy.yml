@@ -33,7 +33,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           source: ".env"
-          target: "/home/ubuntu/findingbird-api/.env"
+          target: "/home/ubuntu/findingbird-api"
+
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.6
