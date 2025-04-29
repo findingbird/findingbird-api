@@ -25,10 +25,10 @@ export class RecordResponseDto {
   name: string | null;
 
   @ApiProperty({
-    description: '관찰 좌표',
-    example: '37.5665,126.9780',
+    description: '자치구',
+    example: '성북구',
   })
-  coordinate: string;
+  district: string;
 
   @ApiProperty({
     description: '새 크기',
@@ -49,10 +49,12 @@ export class RecordResponseDto {
   locationDescription: string;
 
   @ApiProperty({
-    description: 'AI 제안 여부',
-    example: false,
+    description: '목표 Id (null인 경우 AI 제안 X)',
+    example: 'e98d519f-44ba-4ec5-b153-aa4904fa3992',
+    type: 'string',
+    nullable: true,
   })
-  isSuggested: boolean;
+  goalId: string | null;
 
   @ApiProperty({
     description: '관찰 일자',
@@ -65,11 +67,11 @@ export class RecordResponseDto {
       id: record.id,
       imageUrl: record.imageUrl,
       name: record.name,
-      coordinate: record.coordinate,
+      district: record.district,
       size: record.size,
       color: record.color,
       locationDescription: record.locationDescription,
-      isSuggested: record.isSuggested,
+      goalId: record.goalId,
       createdAt: DateUtils.format(record.createdAt),
     };
   }

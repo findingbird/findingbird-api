@@ -17,7 +17,7 @@ export class RecordService {
   ) {}
 
   async createRecord(dto: CreateRecordDto): Promise<Record> {
-    const { userId, image, name, coordinate, size, color, locationDescription, isSuggested } = dto;
+    const { userId, image, name, district, size, color, locationDescription, goalId } = dto;
 
     const savedFile = await this.fileService.uploadFile({
       file: image,
@@ -31,11 +31,11 @@ export class RecordService {
       imageFileId: savedFile.id,
       imageUrl: savedFile.url,
       name,
-      coordinate,
+      district,
       size,
       color,
       locationDescription,
-      isSuggested,
+      goalId,
     });
     await this.recordRepository.save(record);
 

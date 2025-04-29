@@ -7,11 +7,11 @@ export interface RecordNewProps {
   imageFileId: string;
   imageUrl: string;
   name: string | null;
-  coordinate: string;
+  district: string;
   size: string;
   color: string;
   locationDescription: string;
-  isSuggested: boolean;
+  goalId: string | null;
 }
 
 export interface RecordProps extends RecordNewProps, DomainEntityProps {}
@@ -52,8 +52,8 @@ export class Record extends DomainEntity<RecordProps> {
       throw new ValidationError(Record.domainName, 'ImageUrl is required');
     }
 
-    if (!this.props.coordinate) {
-      throw new ValidationError(Record.domainName, 'Coordinate is required');
+    if (!this.props.district) {
+      throw new ValidationError(Record.domainName, 'District is required');
     }
 
     if (!this.props.size) {
@@ -66,10 +66,6 @@ export class Record extends DomainEntity<RecordProps> {
 
     if (!this.props.locationDescription) {
       throw new ValidationError(Record.domainName, 'LocationDescription is required');
-    }
-
-    if (this.props.isSuggested === null || this.props.isSuggested === undefined) {
-      throw new ValidationError(Record.domainName, 'IsSuggested is required');
     }
   }
 
@@ -90,8 +86,8 @@ export class Record extends DomainEntity<RecordProps> {
     return this.props.name;
   }
 
-  get coordinate(): string {
-    return this.props.coordinate;
+  get district(): string {
+    return this.props.district;
   }
 
   get size(): string {
@@ -105,9 +101,8 @@ export class Record extends DomainEntity<RecordProps> {
   get locationDescription(): string {
     return this.props.locationDescription;
   }
-
-  get isSuggested(): boolean {
-    return this.props.isSuggested;
+  get goalId(): string | null {
+    return this.props.goalId;
   }
 
   // Methods

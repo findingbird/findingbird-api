@@ -38,10 +38,10 @@ export class RecordEntity extends CoreEntity {
 
   @Column({
     type: 'varchar',
-    name: 'coordinate',
-    comment: '관찰 좌표',
+    name: 'district',
+    comment: '자치구',
   })
-  coordinate: string;
+  district: string;
 
   @Column({
     type: 'varchar',
@@ -64,9 +64,10 @@ export class RecordEntity extends CoreEntity {
   locationDescription: string;
 
   @Column({
-    type: 'boolean',
-    name: 'is_suggested',
-    comment: 'AI 제안 여부',
+    type: 'varchar',
+    name: 'goal_id',
+    comment: '목표 ID',
+    nullable: true,
   })
-  isSuggested: boolean;
+  goalId: string | null;
 }

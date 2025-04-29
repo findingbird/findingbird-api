@@ -9,11 +9,11 @@ export class RecordMapper {
       imageFileId: entity.imageFileId,
       imageUrl: entity.imageUrl,
       name: entity.name,
-      coordinate: entity.coordinate,
+      district: entity.district,
       size: entity.size,
       color: entity.color,
       locationDescription: entity.locationDescription,
-      isSuggested: entity.isSuggested,
+      goalId: entity.goalId,
       createdAt: DateUtils.toKst(entity.createdAt),
       updatedAt: DateUtils.toKst(entity.updatedAt),
       deletedAt: entity.deletedAt ? DateUtils.toKst(entity.deletedAt) : null,
@@ -35,11 +35,11 @@ export class RecordMapper {
     recordEntity.imageFileId = record.props.imageFileId;
     recordEntity.imageUrl = record.props.imageUrl;
     recordEntity.name = record.props.name;
-    recordEntity.coordinate = record.props.coordinate;
+    recordEntity.district = record.props.district;
     recordEntity.size = record.props.size;
     recordEntity.color = record.props.color;
     recordEntity.locationDescription = record.props.locationDescription;
-    recordEntity.isSuggested = record.props.isSuggested;
+    recordEntity.goalId = record.props.goalId;
     recordEntity.createdAt = DateUtils.toUtcDate(record.props.createdAt);
     recordEntity.updatedAt = DateUtils.toUtcDate(record.props.updatedAt);
     recordEntity.deletedAt = record.props.deletedAt ? DateUtils.toUtcDate(record.props.deletedAt) : null;
