@@ -9,7 +9,7 @@ export class UserResponseDto {
 
   @ApiProperty({
     description: 'user nickname(랜덤 생성)',
-    example: 'user5394',
+    example: '까치5394',
   })
   nickname: string;
 

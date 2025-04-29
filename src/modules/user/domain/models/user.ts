@@ -10,6 +10,30 @@ export interface UserProps extends UserNewProps, DomainEntityProps {
 
 export class User extends DomainEntity<UserProps> {
   public static domainName = 'User';
+  private static readonly birdNames = [
+    '참새',
+    '비둘기',
+    '까치',
+    '직박구리',
+    '청둥오리',
+    '황조롱이',
+    '제비',
+    '딱따구리',
+    '올빼미',
+    '백로',
+    '홍학',
+    '펠리컨',
+    '황새',
+    '물떼새',
+    '백조',
+    '갈매기',
+    '두루미',
+    '오리',
+    '타조',
+    '앵무새',
+    '카나리아',
+  ];
+
   private constructor(id: string, props: UserProps) {
     super(id, props);
   }
@@ -34,7 +58,8 @@ export class User extends DomainEntity<UserProps> {
 
   private static generateRandomNickname(): string {
     const randomNumber = Math.floor(Math.random() * 10000);
-    return `user${randomNumber}`;
+    const randomBirdName = this.birdNames[Math.floor(Math.random() * this.birdNames.length)];
+    return `${randomBirdName}${randomNumber}`;
   }
 
   private validateDomain(): void {
