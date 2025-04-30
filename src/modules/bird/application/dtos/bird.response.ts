@@ -1,8 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+import { IBirdResponseDto } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { Bird } from '~/modules/bird/domain/models/bird';
 
-export class BirdResponseDto {
+// 그대로 API 응답에 포함될 수 있어 Swagger docs 작성
+export class BirdResponseDto implements IBirdResponseDto {
   @ApiProperty({
     description: '새 고유 ID',
     example: '27247e40-5d23-4051-bd15-473fcf5928fe',
