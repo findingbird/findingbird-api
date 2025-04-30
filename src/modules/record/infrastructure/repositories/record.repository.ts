@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
 
+import { DateUtils } from '~/common/utils/Date.utils';
 import { Record } from '~/modules/record/domain/models/record';
 import { IRecordRepository, RecordFilter } from '~/modules/record/domain/repositories/record.repository.interface';
 import { RecordEntity } from '~/modules/record/infrastructure/entities/record.entity';
@@ -25,8 +26,8 @@ export class RecordRepository implements IRecordRepository {
       userId,
     };
     if (year !== undefined && month !== undefined) {
-      const startDate = new Date(year, month - 1, 1); // 월은 0부터 시작하므로 -1
-      const endDate = new Date(year, month, 0); // 다음 달의 0일 = 현재 달의 마지막 일
+      const startDate = DateUtils.toUtcDate(`${year}-${month}-01`);
+      const endDate = DateUtils.toUtcDate(`${year}-${month + 1}-01`);
 
       // Between 조건 사용
       findOptionsWhere.createdAt = Between(startDate, endDate);
