@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { Bird } from '~/modules/bird/domain/models/bird';
 import { IBirdRepository } from '~/modules/bird/domain/repositories/bird.repository.interface';
@@ -17,6 +17,13 @@ export class BirdRepository implements IBirdRepository {
   async findById(id: string): Promise<Bird | null> {
     const birdEntity = await this.birdRepository.findOne({ where: { id } });
     return birdEntity ? BirdMapper.toDomain(birdEntity) : null;
+  }
+
+  async findByIds(ids: string[]): Promise<Bird[]> {
+    const birdEntities = await this.birdRepository.find({
+      where: { id: In(ids) },
+    });
+    return BirdMapper.toDomains(birdEntities);
   }
 
   async findAll(): Promise<Bird[]> {
