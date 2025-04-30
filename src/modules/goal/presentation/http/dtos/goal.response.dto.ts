@@ -12,6 +12,12 @@ export class GoalResponseDto {
   id: string;
 
   @ApiProperty({
+    description: '목표 달성 여부',
+    example: true,
+  })
+  isCompleted: boolean;
+
+  @ApiProperty({
     description: '목표 생성 일자',
     example: '2025-04-25 21:45:23',
   })
@@ -25,6 +31,7 @@ export class GoalResponseDto {
   static fromDomain(goal: Goal, bird: BirdResponseDto): GoalResponseDto {
     return {
       id: goal.id,
+      isCompleted: goal.isCompleted,
       createdAt: DateUtils.format(goal.createdAt),
       bird,
     };

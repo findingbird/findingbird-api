@@ -66,6 +66,10 @@ export class Goal extends DomainEntity<GoalProps> {
     return this.props.birdId;
   }
 
+  get isCompleted(): boolean {
+    return this.props.isCompleted;
+  }
+
   // Methods
   public complete(): void {
     this.changeProps({
