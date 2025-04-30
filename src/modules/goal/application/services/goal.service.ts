@@ -3,24 +3,33 @@ import { Inject, Injectable } from '@nestjs/common';
 import { BadRequestError } from '~/common/exceptions/BadRequestError';
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { DateUtils } from '~/common/utils/Date.utils';
-import { BIRD_SERVICE, IBirdService } from '~/modules/bird/application/interfaces/bird.service.interface';
+import { BIRD_READER, IBirdReader } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { Bird } from '~/modules/bird/domain/models/bird';
 import { CreateGoalDto } from '~/modules/goal/application/dtos/create-goal.dto';
 import { GetGoalByIdDto } from '~/modules/goal/application/dtos/get-goal-by-id.dto';
 import { GetGoalsByDayDto } from '~/modules/goal/application/dtos/get-goals-by-day.dto';
 import { GetGoalsByMonthDto } from '~/modules/goal/application/dtos/get-goals-by-month.dto';
+import { GoalResponseDto } from '~/modules/goal/application/dtos/goal.response.dto';
 import { GoalWithBirdDto } from '~/modules/goal/application/dtos/goal-with-bird.dto';
+import { IGoalReader } from '~/modules/goal/application/interfaces/goal-reader.interface';
 import { Goal } from '~/modules/goal/domain/models/goal';
 import { GOAL_REPOSITORY, IGoalRepository } from '~/modules/goal/domain/repositories/goal.repository.interface';
 
 @Injectable()
-export class GoalService {
+export class GoalService implements IGoalReader {
   constructor(
     @Inject(GOAL_REPOSITORY)
     private readonly goalRepository: IGoalRepository,
-    @Inject(BIRD_SERVICE)
-    private readonly birdService: IBirdService
+    @Inject(BIRD_READER)
+    private readonly birdReader: IBirdReader
   ) {}
+
+  async getGoalsByMonth(dto: GetGoalsByMonthDto): Promise<GoalResponseDto[]> {
+    const { userId, year, month } = dto;
+    const goals = await this.goalRepository.findMany({ userId, year, month });
+
+    return goals.map((goal) => GoalResponseDto.fromDomain(goal));
+  }
 
   async createGoal(dto: CreateGoalDto): Promise<GoalWithBirdDto> {
     const { userId } = dto;
@@ -35,7 +44,7 @@ export class GoalService {
       throw new BadRequestError(Bird.domainName, '최대 3개의 목표를 생성할 수 있습니다.');
     }
 
-    const birds = await this.birdService.getAllBirds();
+    const birds = await this.birdReader.getAllBirds();
 
     // TODO: GPT 이용해서 새 추출하도록 수정
     const bird = birds[Math.floor(Math.random() * birds.length)];
@@ -59,13 +68,6 @@ export class GoalService {
     return this.getGoalWithBird(goal);
   }
 
-  async getGoalsByMonth(dto: GetGoalsByMonthDto): Promise<GoalWithBirdDto[]> {
-    const { userId, year, month } = dto;
-    const goals = await this.goalRepository.findMany({ userId, year, month });
-
-    return this.getGoalWithBird(goals);
-  }
-
   async getTodayGoals(dto: GetGoalsByDayDto): Promise<GoalWithBirdDto[]> {
     const { userId } = dto;
     const now = DateUtils.now();
@@ -85,7 +87,7 @@ export class GoalService {
   private async getGoalWithBird(goal: Goal | Goal[]): Promise<GoalWithBirdDto | GoalWithBirdDto[]> {
     if (Array.isArray(goal)) {
       const birdIds = goal.map((g) => g.birdId);
-      const birds = await this.birdService.getBirdsByIds({ birdIds });
+      const birds = await this.birdReader.getBirdsByIds({ birdIds });
       const birdMap = new Map<string, Bird>();
       birds.forEach((bird: Bird) => {
         birdMap.set(bird.id, bird);
@@ -99,7 +101,7 @@ export class GoalService {
       });
     }
 
-    const bird = await this.birdService.getBirdById({ birdId: goal.birdId });
+    const bird = await this.birdReader.getBirdById({ birdId: goal.birdId });
     return { goal, bird };
   }
 }
