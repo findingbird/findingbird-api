@@ -1,7 +1,7 @@
-import { BirdResponseDto } from '~/modules/bird/application/dtos/bird.response';
+import { IBirdResponseDto } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { Goal } from '~/modules/goal/domain/models/goal';
 
 export class GoalWithBirdDto {
   goal: Goal;
-  bird: BirdResponseDto;
+  bird: IBirdResponseDto;
 }

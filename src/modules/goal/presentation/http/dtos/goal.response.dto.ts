@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import { DateUtils } from '~/common/utils/Date.utils';
 import { BirdResponseDto } from '~/modules/bird/application/dtos/bird.response';
+import { IBirdResponseDto } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { Goal } from '~/modules/goal/domain/models/goal';
 
 export class GoalResponseDto {
@@ -25,10 +26,11 @@ export class GoalResponseDto {
 
   @ApiProperty({
     description: '목표 새',
+    type: BirdResponseDto,
   })
-  bird: BirdResponseDto;
+  bird: IBirdResponseDto;
 
-  static fromDomain(goal: Goal, bird: BirdResponseDto): GoalResponseDto {
+  static fromDomain(goal: Goal, bird: IBirdResponseDto): GoalResponseDto {
     return {
       id: goal.id,
       isCompleted: goal.isCompleted,

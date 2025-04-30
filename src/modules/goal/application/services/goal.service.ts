@@ -43,7 +43,7 @@ export class GoalService implements IGoalReader {
       month,
       day,
     });
-    if (todayGoals.length > 3) {
+    if (todayGoals.length >= 3) {
       throw new BadRequestError(Bird.domainName, '최대 3개의 목표를 생성할 수 있습니다.');
     }
 
@@ -74,11 +74,14 @@ export class GoalService implements IGoalReader {
   async getTodayGoals(dto: GetGoalsByDayDto): Promise<GoalWithBirdDto[]> {
     const { userId } = dto;
     const now = DateUtils.now();
+    const year = now.year();
+    const month = now.month() + 1; // month는 0부터 시작하므로 +1
+    const day = now.date();
     const goals = await this.goalRepository.findMany({
       userId,
-      year: now.year(),
-      month: now.month(),
-      day: now.day(),
+      year,
+      month,
+      day,
     });
 
     return this.getGoalWithBird(goals);
