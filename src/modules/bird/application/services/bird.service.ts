@@ -3,13 +3,13 @@ import { Inject, Injectable } from '@nestjs/common';
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { BirdResponseDto } from '~/modules/bird/application/dtos/bird.response';
 import { GetBirdByIdDto } from '~/modules/bird/application/dtos/get-bird-by-id.dto';
-import { getBirdsByIdsDto } from '~/modules/bird/application/dtos/get-bird-by-ids.dto';
-import { IBirdService } from '~/modules/bird/application/interfaces/bird.service.interface';
+import { GetBirdsByIdsDto } from '~/modules/bird/application/dtos/get-bird-by-ids.dto';
+import { IBirdReader } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { Bird } from '~/modules/bird/domain/models/bird';
 import { BIRD_REPOSITORY, IBirdRepository } from '~/modules/bird/domain/repositories/bird.repository.interface';
 
 @Injectable()
-export class BirdService implements IBirdService {
+export class BirdService implements IBirdReader {
   constructor(
     @Inject(BIRD_REPOSITORY)
     private readonly birdRepository: IBirdRepository
@@ -29,7 +29,7 @@ export class BirdService implements IBirdService {
     return BirdResponseDto.fromDomain(bird);
   }
 
-  async getBirdsByIds(dto: getBirdsByIdsDto): Promise<BirdResponseDto[]> {
+  async getBirdsByIds(dto: GetBirdsByIdsDto): Promise<BirdResponseDto[]> {
     const { birdIds } = dto;
     const birds = await this.birdRepository.findByIds(birdIds);
     if (birds.length !== birdIds.length) {

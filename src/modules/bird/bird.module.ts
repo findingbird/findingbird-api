@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { BIRD_SERVICE } from '~/modules/bird/application/interfaces/bird.service.interface';
+import { BIRD_READER } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { BirdService } from '~/modules/bird/application/services/bird.service';
 import { BIRD_REPOSITORY } from '~/modules/bird/domain/repositories/bird.repository.interface';
 import { BirdEntity } from '~/modules/bird/infrastructure/entities/bird.entity';
@@ -17,10 +17,10 @@ import { BirdRepository } from '~/modules/bird/infrastructure/repositories/bird.
       useClass: BirdRepository,
     },
     {
-      provide: BIRD_SERVICE,
+      provide: BIRD_READER,
       useExisting: BirdService,
     },
   ],
-  exports: [BIRD_SERVICE],
+  exports: [BIRD_READER],
 })
 export class BirdModule {}
