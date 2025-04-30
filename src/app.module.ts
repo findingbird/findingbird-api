@@ -12,7 +12,9 @@ import { GlobalExceptionFilter } from '~/common/filters/Global-exception.filter'
 import { LoggingInterceptor } from '~/common/interceptors/Logging.interceptor';
 import { TypeOrmConfig } from '~/config/typeorm.config';
 import { AuthModule } from '~/modules/auth/auth.module';
+import { BirdModule } from '~/modules/bird/bird.module';
 import { FileModule } from '~/modules/file/file.module';
+import { GoalModule } from '~/modules/goal/goal.module';
 import { RecordModule } from '~/modules/record/record.module';
 import { UserModule } from '~/modules/user/user.module';
 
@@ -29,6 +31,8 @@ import { UserModule } from '~/modules/user/user.module';
     AuthModule,
     FileModule,
     RecordModule,
+    BirdModule,
+    GoalModule,
   ],
   controllers: [AppController],
   providers: [
