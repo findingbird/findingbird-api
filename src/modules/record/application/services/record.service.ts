@@ -5,16 +5,24 @@ import { FileService } from '~/modules/file/application/services/file.service';
 import { CreateRecordDto } from '~/modules/record/application/dtos/create-record.dto';
 import { GetRecordByIdDto } from '~/modules/record/application/dtos/get-record-by-id.dto';
 import { GetRecordsByMonthDto } from '~/modules/record/application/dtos/get-records-by-month.dto';
+import { RecordResponseDto } from '~/modules/record/application/dtos/record.response.dto';
+import { IRecordReader } from '~/modules/record/application/interfaces/record-reader.interface';
 import { Record } from '~/modules/record/domain/models/record';
 import { IRecordRepository, RECORD_REPOSITORY } from '~/modules/record/domain/repositories/record.repository.interface';
 
 @Injectable()
-export class RecordService {
+export class RecordService implements IRecordReader {
   constructor(
     @Inject(RECORD_REPOSITORY)
     private readonly recordRepository: IRecordRepository,
     private readonly fileService: FileService
   ) {}
+
+  async getRecordsByMonth(dto: GetRecordsByMonthDto): Promise<RecordResponseDto[]> {
+    const { userId, year, month } = dto;
+    const records = await this.recordRepository.findMany({ userId, year, month });
+    return records.map((record) => RecordResponseDto.fromDomain(record));
+  }
 
   async createRecord(dto: CreateRecordDto): Promise<Record> {
     const { userId, image, name, district, size, color, locationDescription, goalId } = dto;
@@ -50,10 +58,5 @@ export class RecordService {
     }
 
     return record;
-  }
-
-  async getRecordsByMonth(dto: GetRecordsByMonthDto): Promise<Record[]> {
-    const { userId, year, month } = dto;
-    return this.recordRepository.findMany({ userId, year, month });
   }
 }
