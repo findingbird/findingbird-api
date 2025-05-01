@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { FileService } from '~/modules/file/application/services/file.service';
+import { GOAL_PERSISTER, IGoalPersister } from '~/modules/goal/application/interfaces/goal-persister.interface';
 import { CreateRecordDto } from '~/modules/record/application/dtos/create-record.dto';
 import { GetRecordByIdDto } from '~/modules/record/application/dtos/get-record-by-id.dto';
 import { GetRecordsByMonthDto } from '~/modules/record/application/dtos/get-records-by-month.dto';
@@ -15,7 +16,9 @@ export class RecordService implements IRecordReader {
   constructor(
     @Inject(RECORD_REPOSITORY)
     private readonly recordRepository: IRecordRepository,
-    private readonly fileService: FileService
+    private readonly fileService: FileService,
+    @Inject(GOAL_PERSISTER)
+    private readonly goalPersister: IGoalPersister
   ) {}
 
   async getRecordsByMonth(dto: GetRecordsByMonthDto): Promise<RecordResponseDto[]> {
@@ -26,6 +29,13 @@ export class RecordService implements IRecordReader {
 
   async createRecord(dto: CreateRecordDto): Promise<Record> {
     const { userId, image, name, district, size, color, locationDescription, goalId } = dto;
+
+    if (goalId !== null) {
+      await this.goalPersister.completeGoal({
+        userId,
+        goalId,
+      });
+    }
 
     const savedFile = await this.fileService.uploadFile({
       file: image,
