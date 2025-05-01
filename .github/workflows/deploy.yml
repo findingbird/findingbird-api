@@ -44,7 +44,8 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
             cd /home/ubuntu/findingbird-api
-            git pull origin main
+            git fetch origin
+            git reset --hard origin/main
             yarn install
             yarn build
             pm2 restart findingbird || pm2 start dist/main.js --name findingbird
