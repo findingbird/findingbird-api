@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { USER_PERSISTER } from '~/modules/user/application/interfaces/user-persister.interface';
 import { UserService } from '~/modules/user/application/services/user.service';
 import { USER_REPOSITORY } from '~/modules/user/domain/repositories/user.repository.interface';
 import { UserEntity } from '~/modules/user/infrastructure/entities/user.entity';
@@ -16,7 +17,11 @@ import { UserController } from '~/modules/user/presentation/http/user.controller
       provide: USER_REPOSITORY,
       useClass: UserRepository,
     },
+    {
+      provide: USER_PERSISTER,
+      useExisting: UserService,
+    },
   ],
-  exports: [UserService],
+  exports: [USER_PERSISTER],
 })
 export class UserModule {}

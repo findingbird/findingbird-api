@@ -11,7 +11,7 @@ import { TokenDto } from '~/modules/auth/application/dtos/token.dto';
 import { JwtPayload } from '~/modules/auth/application/interfaces/jwt-payload.interface';
 import { Auth } from '~/modules/auth/domain/models/auth';
 import { AUTH_REPOSITORY, IAuthRepository } from '~/modules/auth/domain/repositories/auth.repository.interface';
-import { UserService } from '~/modules/user/application/services/user.service';
+import { IUserPersister, USER_PERSISTER } from '~/modules/user/application/interfaces/user-persister.interface';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +21,8 @@ export class AuthService {
   constructor(
     @Inject(AUTH_REPOSITORY)
     private readonly authRepository: IAuthRepository,
-    private readonly userService: UserService,
+    @Inject(USER_PERSISTER)
+    private readonly userPersister: IUserPersister,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService
   ) {
@@ -35,8 +36,8 @@ export class AuthService {
     let auth = await this.authRepository.findByKakaoId(kakaoId);
     if (!auth) {
       // 사용자가 없으면 새로 생성
-      const user = await this.userService.createUser();
-      auth = await this.createAuth({ userId: user.id, kakaoId });
+      const user = await this.userPersister.createUser();
+      auth = await this.createAuth({ userId: user.userId, kakaoId });
     }
     const token = this.generateToken(auth);
     auth.saveRefreshToken(token.refreshToken, DateUtils.now().add(this.refreshExpiresInSecond, 'second'));

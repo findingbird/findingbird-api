@@ -1,5 +1,3 @@
-import { Express } from 'express';
-
 export class UploadFileDto {
   file: Express.Multer.File;
   directory?: string; // 파일 저장 디렉토리 (기본값: 'uploads')

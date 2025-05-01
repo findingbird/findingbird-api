@@ -7,12 +7,17 @@ import { v4 as uuidv4 } from 'uuid';
 import { BadRequestError } from '~/common/exceptions/BadRequestError';
 import { InternalServerError } from '~/common/exceptions/InternelServerError';
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
+import { DeleteFileDto } from '~/modules/file/application/dtos/delete-file.dto';
+import { FileResponseDto } from '~/modules/file/application/dtos/file.response.dto';
+import { GetFilebyIdDto } from '~/modules/file/application/dtos/get-file-by-id.dto';
 import { UploadFileDto } from '~/modules/file/application/dtos/upload-file.dto';
+import { IFilePersister } from '~/modules/file/application/interfaces/file-persister.interface';
+import { IFileReader } from '~/modules/file/application/interfaces/file-reader.interface';
 import { File } from '~/modules/file/domain/models/file';
 import { FILE_REPOSITORY, IFileRepository } from '~/modules/file/domain/repositories/file.repository.interface';
 
 @Injectable()
-export class FileService {
+export class FileService implements IFileReader, IFilePersister {
   private readonly s3Client: S3Client;
   private readonly bucketName: string;
   private readonly environment: string;
@@ -39,16 +44,17 @@ export class FileService {
     }
   }
 
-  async getFileById(id: string): Promise<File> {
-    const file = await this.fileRepository.findById(id);
+  async getFileById(dto: GetFilebyIdDto): Promise<FileResponseDto> {
+    const { fileId } = dto;
+    const file = await this.fileRepository.findById(fileId);
     if (!file) {
-      throw new NotFoundError(File.domainName, id);
+      throw new NotFoundError(File.domainName, fileId);
     }
 
-    return file;
+    return FileResponseDto.fromDomain(file);
   }
 
-  async uploadFile(dto: UploadFileDto): Promise<File> {
+  async uploadFile(dto: UploadFileDto): Promise<FileResponseDto> {
     const { file, directory = 'uploads', allowedTypes, maxSize = 5 * 1024 * 1024 } = dto;
 
     if (maxSize && file.size > maxSize) {
@@ -88,7 +94,7 @@ export class FileService {
       });
       await this.fileRepository.save(fileEntity);
 
-      return fileEntity;
+      return FileResponseDto.fromDomain(fileEntity);
     } catch (error: unknown) {
       throw new InternalServerError(
         File.domainName,
@@ -97,8 +103,9 @@ export class FileService {
     }
   }
 
-  async deleteFile(id: string): Promise<void> {
-    const file = await this.fileRepository.findById(id);
+  async deleteFile(dto: DeleteFileDto): Promise<void> {
+    const { fileId } = dto;
+    const file = await this.fileRepository.findById(fileId);
     if (!file) {
       return;
     }
