@@ -5,18 +5,20 @@ import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { DateUtils } from '~/common/utils/Date.utils';
 import { BIRD_READER, IBirdReader } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { Bird } from '~/modules/bird/domain/models/bird';
+import { CompleteGoalDto } from '~/modules/goal/application/dtos/complete-goal.dto';
 import { CreateGoalDto } from '~/modules/goal/application/dtos/create-goal.dto';
 import { GetGoalByIdDto } from '~/modules/goal/application/dtos/get-goal-by-id.dto';
 import { GetGoalsByDayDto } from '~/modules/goal/application/dtos/get-goals-by-day.dto';
 import { GetGoalsByMonthDto } from '~/modules/goal/application/dtos/get-goals-by-month.dto';
 import { GoalResponseDto } from '~/modules/goal/application/dtos/goal.response.dto';
 import { GoalWithBirdDto } from '~/modules/goal/application/dtos/goal-with-bird.dto';
+import { IGoalPersister } from '~/modules/goal/application/interfaces/goal-persister.interface';
 import { IGoalReader } from '~/modules/goal/application/interfaces/goal-reader.interface';
 import { Goal } from '~/modules/goal/domain/models/goal';
 import { GOAL_REPOSITORY, IGoalRepository } from '~/modules/goal/domain/repositories/goal.repository.interface';
 
 @Injectable()
-export class GoalService implements IGoalReader {
+export class GoalService implements IGoalReader, IGoalPersister {
   constructor(
     @Inject(GOAL_REPOSITORY)
     private readonly goalRepository: IGoalRepository,
@@ -29,6 +31,21 @@ export class GoalService implements IGoalReader {
     const goals = await this.goalRepository.findMany({ userId, year, month });
 
     return goals.map((goal) => GoalResponseDto.fromDomain(goal));
+  }
+
+  async completeGoal(dto: CompleteGoalDto): Promise<void> {
+    const { userId, goalId } = dto;
+    const goal = await this.goalRepository.findById(goalId);
+
+    if (!goal) {
+      throw new NotFoundError(Goal.domainName, goalId);
+    }
+    if (goal.userId !== userId) {
+      throw new BadRequestError(Goal.domainName, '해당 목표는 다른 사용자의 목표입니다.');
+    }
+
+    goal.complete();
+    await this.goalRepository.save(goal);
   }
 
   async createGoal(dto: CreateGoalDto): Promise<GoalWithBirdDto> {

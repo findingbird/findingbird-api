@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { BirdModule } from '~/modules/bird/bird.module';
+import { GOAL_PERSISTER } from '~/modules/goal/application/interfaces/goal-persister.interface';
 import { GOAL_READER } from '~/modules/goal/application/interfaces/goal-reader.interface';
 import { GoalService } from '~/modules/goal/application/services/goal.service';
 import { GOAL_REPOSITORY } from '~/modules/goal/domain/repositories/goal.repository.interface';
@@ -22,7 +23,11 @@ import { GoalController } from '~/modules/goal/presentation/http/goal.controller
       provide: GOAL_READER,
       useExisting: GoalService,
     },
+    {
+      provide: GOAL_PERSISTER,
+      useExisting: GoalService,
+    },
   ],
-  exports: [GOAL_READER],
+  exports: [GOAL_READER, GOAL_PERSISTER],
 })
 export class GoalModule {}
