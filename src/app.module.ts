@@ -11,6 +11,7 @@ import { AppService } from '~/app.service';
 import { GlobalExceptionFilter } from '~/common/filters/Global-exception.filter';
 import { LoggingInterceptor } from '~/common/interceptors/Logging.interceptor';
 import { TypeOrmConfig } from '~/config/typeorm.config';
+import { AiModule } from '~/modules/ai/ai.module';
 import { AuthModule } from '~/modules/auth/auth.module';
 import { BirdModule } from '~/modules/bird/bird.module';
 import { CalendarModule } from '~/modules/calendar/calendar.module';
@@ -35,6 +36,7 @@ import { UserModule } from '~/modules/user/user.module';
     BirdModule,
     GoalModule,
     CalendarModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [
