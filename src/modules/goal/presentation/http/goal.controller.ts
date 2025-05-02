@@ -1,9 +1,10 @@
-import { Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
 import { GoalService } from '~/modules/goal/application/services/goal.service';
+import { CreateGoalRequestDto } from '~/modules/goal/presentation/http/dtos/create-goal.request.dto';
 import { GoalResponseDto } from '~/modules/goal/presentation/http/dtos/goal.response.dto';
 
 @Controller('goal')
@@ -62,9 +63,10 @@ export class GoalController {
     description: '목표 생성 성공',
     type: GoalResponseDto,
   })
-  async createGoal(@Req() req: UserRequest): Promise<GoalResponseDto> {
+  async createGoal(@Req() req: UserRequest, @Body() body: CreateGoalRequestDto): Promise<GoalResponseDto> {
     const { userId } = req.user;
-    const goalWithBird = await this.goalService.createGoal({ userId });
+    const { district } = body;
+    const goalWithBird = await this.goalService.createGoal({ userId, district });
     return GoalResponseDto.fromDomain(goalWithBird.goal, goalWithBird.bird);
   }
 }

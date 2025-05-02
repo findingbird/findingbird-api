@@ -1,9 +1,16 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { BadRequestError } from '~/common/exceptions/BadRequestError';
+import { InternalServerError } from '~/common/exceptions/InternelServerError';
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { DateUtils } from '~/common/utils/Date.utils';
-import { BIRD_READER, IBirdReader } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
+import { LLMPrompt } from '~/modules/ai/application/dtos/llm.dto';
+import { ILLMClient, LLM_CLIENT } from '~/modules/ai/application/interfaces/llm-client.interface';
+import {
+  BIRD_READER,
+  IBirdReader,
+  IBirdResponseDto,
+} from '~/modules/bird/application/interfaces/bird-reader.service.interface';
 import { Bird } from '~/modules/bird/domain/models/bird';
 import { CompleteGoalDto } from '~/modules/goal/application/dtos/complete-goal.dto';
 import { CreateGoalDto } from '~/modules/goal/application/dtos/create-goal.dto';
@@ -23,7 +30,9 @@ export class GoalService implements IGoalReader, IGoalPersister {
     @Inject(GOAL_REPOSITORY)
     private readonly goalRepository: IGoalRepository,
     @Inject(BIRD_READER)
-    private readonly birdReader: IBirdReader
+    private readonly birdReader: IBirdReader,
+    @Inject(LLM_CLIENT)
+    private readonly llmClient: ILLMClient
   ) {}
 
   async getGoalsByMonth(dto: GetGoalsByMonthDto): Promise<GoalResponseDto[]> {
@@ -49,7 +58,7 @@ export class GoalService implements IGoalReader, IGoalPersister {
   }
 
   async createGoal(dto: CreateGoalDto): Promise<GoalWithBirdDto> {
-    const { userId } = dto;
+    const { userId, district } = dto;
     const now = DateUtils.now();
     const year = now.year();
     const month = now.month() + 1; // month는 0부터 시작하므로 +1
@@ -65,9 +74,19 @@ export class GoalService implements IGoalReader, IGoalPersister {
     }
 
     const birds = await this.birdReader.getAllBirds();
+    const prevGoals = await this.goalRepository.findMany({
+      userId,
+    });
 
-    // TODO: GPT 이용해서 새 추출하도록 수정
-    const bird = birds[Math.floor(Math.random() * birds.length)];
+    const prompt = this.makeRecommentPrompt(district, prevGoals, birds);
+    const recommendedBirdId = (await this.llmClient.invoke(prompt)).response.trim().replace(/^"|"$/g, '');
+    const bird = birds.find((bird) => bird.id === recommendedBirdId);
+    if (!bird) {
+      throw new InternalServerError(
+        Bird.domainName,
+        `AI 응답으로부터 추천된 새를 찾을 수 없습니다. - 응답: ${recommendedBirdId}`
+      );
+    }
 
     const goal = Goal.createNew({
       userId,
@@ -126,5 +145,38 @@ export class GoalService implements IGoalReader, IGoalPersister {
 
     const bird = await this.birdReader.getBirdById({ birdId: goal.birdId });
     return { goal, bird };
+  }
+
+  private makeRecommentPrompt(district: string, prevGoals: Goal[], birds: IBirdResponseDto[]): LLMPrompt {
+    return {
+      system: `너는 조류 탐사를 도와주는 전문가야. 
+      사용자 위치, 계절, 출현 빈도, 서식 특성 등을 고려해 탐사하기 가장 좋은 새 하나를 골라야 해. 
+      이전에 추천된 새는 가능한 피하고, 계절과 지역에 적합한 새를 우선 고려해. 
+      응답은 반드시 해당 새의 **Id 값 하나만 텍스트로** 반환해야 해. 
+      JSON, 배열, 설명, 문장은 절대 포함하지 마. 
+      오직 Id 값만 반환해.`,
+
+      user: `다음은 추천에 필요한 정보야:
+      
+      - 사용자 위치: ${district}
+      - 현재 날짜: ${DateUtils.now().format('YYYY-MM-DD')}
+      - 이전 추천 목록: [${prevGoals.map((goal) => goal.birdId).join(', ')}]
+      - 추천 가능한 새 목록:
+      [
+        ${birds
+          .map((bird) => {
+            return `{
+            "id": "${bird.id}",
+            "speciesName": "${bird.speciesName}",
+            "habitatType": "${bird.habitatType}",
+            "appearanceCount": ${bird.appearanceCount},
+            "districts": [${bird.districts.map((district) => `"${district}"`).join(', ')}],
+          }`;
+          })
+          .join(', ')}
+      ]
+          
+      이 중 탐사하기 가장 적합한 새 1종을 선택해서 해당 Id 값만 반환해.`,
+    };
   }
 }

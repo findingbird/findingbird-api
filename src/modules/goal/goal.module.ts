@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { AiModule } from '~/modules/ai/ai.module';
 import { BirdModule } from '~/modules/bird/bird.module';
 import { GOAL_PERSISTER } from '~/modules/goal/application/interfaces/goal-persister.interface';
 import { GOAL_READER } from '~/modules/goal/application/interfaces/goal-reader.interface';
@@ -11,7 +12,7 @@ import { GoalRepository } from '~/modules/goal/infrastructure/repositories/goal.
 import { GoalController } from '~/modules/goal/presentation/http/goal.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GoalEntity]), BirdModule],
+  imports: [TypeOrmModule.forFeature([GoalEntity]), BirdModule, AiModule],
   controllers: [GoalController],
   providers: [
     GoalService,
