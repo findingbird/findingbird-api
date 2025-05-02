@@ -84,7 +84,7 @@ export class GoalService implements IGoalReader, IGoalPersister {
     if (!bird) {
       throw new InternalServerError(
         Bird.domainName,
-        `AI 응답으로부터 추천된 새를 찾을 수 없습니다. - 응답: ${recommendedBirdId}`
+        `AI 응답으로부터 추천된 새를 찾을 수 없습니다. 다시 시도해 주시기 바랍니다. 추천된 새 ID: ${recommendedBirdId}`
       );
     }
 
@@ -152,9 +152,10 @@ export class GoalService implements IGoalReader, IGoalPersister {
       system: `너는 조류 탐사를 도와주는 전문가야. 
       사용자 위치, 계절, 출현 빈도, 서식 특성 등을 고려해 탐사하기 가장 좋은 새 하나를 골라야 해. 
       이전에 추천된 새는 가능한 피하고, 계절과 지역에 적합한 새를 우선 고려해. 
-      응답은 반드시 해당 새의 **Id 값 하나만 텍스트로** 반환해야 해. 
+      응답은 반드시 해당 새의 **ID 값 하나만 텍스트로** 반환해야 해. 
       JSON, 배열, 설명, 문장은 절대 포함하지 마. 
-      오직 Id 값만 반환해.`,
+      오직 ID 값만 반환해.
+      추천 가능한 새 목록에 실제로 있는 새의 ID 값만 반환되어야 해.`,
 
       user: `다음은 추천에 필요한 정보야:
       
@@ -166,7 +167,7 @@ export class GoalService implements IGoalReader, IGoalPersister {
         ${birds
           .map((bird) => {
             return `{
-            "id": "${bird.id}",
+            "ID": "${bird.id}",
             "speciesName": "${bird.speciesName}",
             "habitatType": "${bird.habitatType}",
             "appearanceCount": ${bird.appearanceCount},
@@ -176,7 +177,7 @@ export class GoalService implements IGoalReader, IGoalPersister {
           .join(', ')}
       ]
           
-      이 중 탐사하기 가장 적합한 새 1종을 선택해서 해당 Id 값만 반환해.`,
+      이 중 탐사하기 가장 적합한 새 1종을 선택해서 해당 ID 값만 반환해.`,
     };
   }
 }
