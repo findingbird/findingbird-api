@@ -1,4 +1,7 @@
 import dayjs, { Dayjs } from 'dayjs';
+import isBetween from 'dayjs/plugin/isBetween';
+
+dayjs.extend(isBetween);
 
 export class DateUtils {
   // 현재 시간 (KST) 기준
