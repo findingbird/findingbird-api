@@ -4,7 +4,6 @@ import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swag
 import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
 import { GOAL_SERVICE, IGoalService } from '~/modules/goal/application/ports/in/goal.service.port';
-import { BookResponseDto } from '~/modules/goal/presentation/http/dtos/book.response.dto';
 import { CreateGoalRequestDto } from '~/modules/goal/presentation/http/dtos/create-goal.request.dto';
 import { GoalResponseDto } from '~/modules/goal/presentation/http/dtos/goal.response.dto';
 
@@ -31,24 +30,6 @@ export class GoalController {
     const { userId } = req.user;
     const goalWithBirds = await this.goalService.getTodayGoals({ userId });
     return goalWithBirds.map((goalWithBird) => GoalResponseDto.fromData(goalWithBird));
-  }
-
-  @Get('/book')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({
-    summary: '도감 조회',
-    description: '도감을 조회합니다.',
-  })
-  @ApiResponse({
-    status: 200,
-    description: '도감 조회 성공',
-    type: BookResponseDto,
-  })
-  async getBook(@Req() req: UserRequest): Promise<BookResponseDto> {
-    const { userId } = req.user;
-    const book = await this.goalService.getBook({ userId });
-    return BookResponseDto.fromData(book);
   }
 
   @Get('/:id')

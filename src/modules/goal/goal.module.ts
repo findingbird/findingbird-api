@@ -9,11 +9,12 @@ import { GoalService } from '~/modules/goal/application/services/goal.service';
 import { BirdRecommendationService } from '~/modules/goal/domain/services/bird-recommendation.service';
 import { GoalEntity } from '~/modules/goal/infrastructure/entities/goal.entity';
 import { GoalRepository } from '~/modules/goal/infrastructure/repositories/goal.repository';
+import { BookController } from '~/modules/goal/presentation/http/book.controller';
 import { GoalController } from '~/modules/goal/presentation/http/goal.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([GoalEntity]), BirdModule, AiModule],
-  controllers: [GoalController],
+  controllers: [GoalController, BookController],
   providers: [
     {
       provide: GOAL_SERVICE,
