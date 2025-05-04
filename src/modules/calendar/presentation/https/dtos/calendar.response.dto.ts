@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { DateUtils } from '~/common/utils/Date.utils';
-import { CalendarResultDto } from '~/modules/calendar/application/dto/calendar-result.dto';
+import { CalendarResultDto } from '~/modules/calendar/application/dtos/calendar-result.dto';
 
 export class RecordPreviewDto {
   @ApiProperty({

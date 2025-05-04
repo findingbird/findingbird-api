@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CalendarResultDto, DailyDataDto } from '~/modules/calendar/application/dto/calendar-result.dto';
-import { GetCalendarDto } from '~/modules/calendar/application/dto/get-calendar.dto';
+import { CalendarResultDto, DailyDataDto } from '~/modules/calendar/application/dtos/calendar-result.dto';
+import { GetCalendarDto } from '~/modules/calendar/application/dtos/get-calendar.dto';
 import { GoalResultDto } from '~/modules/goal/application/dtos/goal-result.dto';
 import { GOAL_SERVICE, IGoalService } from '~/modules/goal/application/ports/in/goal.service.port';
 import { RecordResultDto } from '~/modules/record/application/dtos/record-result.dto';

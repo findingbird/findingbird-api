@@ -1,5 +1,5 @@
-import { CalendarResultDto } from '~/modules/calendar/application/dto/calendar-result.dto';
-import { GetCalendarDto } from '~/modules/calendar/application/dto/get-calendar.dto';
+import { CalendarResultDto } from '~/modules/calendar/application/dtos/calendar-result.dto';
+import { GetCalendarDto } from '~/modules/calendar/application/dtos/get-calendar.dto';
 
 export const CALENDAR_SERVICE = Symbol('ICalendarService');
 
