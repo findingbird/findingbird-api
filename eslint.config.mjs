@@ -73,7 +73,9 @@ export default tseslint.config(
       'prefer-const': 'warn',
       'eqeqeq': 'warn',
       'prefer-arrow-callback': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
+      '@typescript-eslint/no-unused-vars': ['warn', {
+        argsIgnorePattern: '^_',
+      }],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-floating-promises': 'off',
       '@typescript-eslint/no-unsafe-argument': 'warn',

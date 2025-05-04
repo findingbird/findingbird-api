@@ -1,7 +1,7 @@
-import { Controller, Get, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse } from '@nestjs/swagger';
 import { Response } from 'express';
 
 import { JwtRefreshGuard } from '~/common/guards/jwt-refresh-guard';
@@ -25,11 +25,16 @@ export class AuthController {
     summary: '카카오 로그인',
     description: '자동으로 카카오 로그인 페이지로 redirect 됩니다. (Swagger 상에서는 동작하지 않습니다.)',
   })
+  @ApiQuery({
+    name: 'callback',
+    description: '카카오 로그인 후 redirect 될 URL입니다. (default: http://localhost:3000/auth/callback)',
+    required: false,
+  })
   @ApiResponse({
     status: 302,
     description: '카카오 로그인 페이지로 redirect 됩니다.',
   })
-  async kakaoLogin(): Promise<void> {
+  async kakaoLogin(@Query('callback') _callback: string): Promise<void> {
     // redirect to kakao login page
   }
 
@@ -45,7 +50,11 @@ export class AuthController {
     description:
       'access token은 URL query, refresh token은 cookie에 포함되어 있습니다. (https 가 활성화되어야 합니다.)',
   })
-  async kakaoLoginRedirect(@Req() req: KakaoRequest, @Res() res: Response): Promise<void> {
+  async kakaoLoginRedirect(
+    @Req() req: KakaoRequest,
+    @Res() res: Response,
+    @Query('state') state: string
+  ): Promise<void> {
     const kakaoLoginDto: KakaoLoginDto = req.user;
     const token = await this.authService.kakaoLogin(kakaoLoginDto);
     res.cookie('refresh-token', token.refreshToken, {
@@ -54,10 +63,10 @@ export class AuthController {
       sameSite: 'none',
       maxAge: (this.configService.get<string>('NODE_ENV') === 'development' ? 7 : 30) * 24 * 60 * 60 * 1000,
     });
-    const clientUrl = this.configService.get<string>('CLIENT_URL');
-    // TODO: client redirect URL 확인 및 수정"
-    const redirectUrl = `${clientUrl}/auth/callback?accessToken=${token.accessToken}`;
-    return res.redirect(redirectUrl);
+    const callbackUrl = state
+      ? `${state}?accessToken=${token.accessToken}`
+      : `${this.configService.get<string>('CLIENT_URL')}/auth/callback?accessToken=${token.accessToken}`;
+    return res.redirect(callbackUrl);
   }
 
   @Post('/refresh')
