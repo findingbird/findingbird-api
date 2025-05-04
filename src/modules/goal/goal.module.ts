@@ -6,6 +6,7 @@ import { BirdModule } from '~/modules/bird/bird.module';
 import { GOAL_SERVICE } from '~/modules/goal/application/ports/in/goal.service.port';
 import { GOAL_REPOSITORY } from '~/modules/goal/application/ports/out/goal.repository.port';
 import { GoalService } from '~/modules/goal/application/services/goal.service';
+import { BirdRecommendationService } from '~/modules/goal/domain/services/bird-recommendation.service';
 import { GoalEntity } from '~/modules/goal/infrastructure/entities/goal.entity';
 import { GoalRepository } from '~/modules/goal/infrastructure/repositories/goal.repository';
 import { GoalController } from '~/modules/goal/presentation/http/goal.controller';
@@ -22,6 +23,7 @@ import { GoalController } from '~/modules/goal/presentation/http/goal.controller
       provide: GOAL_REPOSITORY,
       useClass: GoalRepository,
     },
+    BirdRecommendationService,
   ],
   exports: [GOAL_SERVICE],
 })
