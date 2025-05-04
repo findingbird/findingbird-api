@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Repository } from 'typeorm';
 
-import { IBirdRepository } from '~/modules/bird/application/ports/out/bird.repository.port';
+import { BirdFilter, IBirdRepository } from '~/modules/bird/application/ports/out/bird.repository.port';
 import { Bird } from '~/modules/bird/domain/models/bird';
 import { BirdEntity } from '~/modules/bird/infrastructure/entities/bird.entity';
 import { BirdMapper } from '~/modules/bird/infrastructure/mappers/bird.mapper';
@@ -26,8 +26,15 @@ export class BirdRepository implements IBirdRepository {
     return BirdMapper.toDomains(birdEntities);
   }
 
-  async findAll(): Promise<Bird[]> {
-    const birdEntities = await this.birdRepository.find();
+  async findMany(filter: BirdFilter): Promise<Bird[]> {
+    const { easyToFind } = filter;
+    const FindOptionsWhere: FindOptionsWhere<BirdEntity> = {};
+    if (easyToFind !== undefined) {
+      FindOptionsWhere.easyToFind = easyToFind;
+    }
+    const birdEntities = await this.birdRepository.find({
+      where: FindOptionsWhere,
+    });
     return BirdMapper.toDomains(birdEntities);
   }
 

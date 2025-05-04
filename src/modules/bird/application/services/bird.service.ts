@@ -7,6 +7,7 @@ import { GetBirdsByIdsDto } from '~/modules/bird/application/dtos/get-birds-by-i
 import { IBirdService } from '~/modules/bird/application/ports/in/bird.service.port';
 import { BIRD_REPOSITORY, IBirdRepository } from '~/modules/bird/application/ports/out/bird.repository.port';
 import { Bird } from '~/modules/bird/domain/models/bird';
+
 @Injectable()
 export class BirdService implements IBirdService {
   constructor(
@@ -34,8 +35,12 @@ export class BirdService implements IBirdService {
   }
 
   async getAllBirds(): Promise<BirdResultDto[]> {
-    // Updated return type to BirdResultDto[]
-    const birds = await this.birdRepository.findAll();
+    const birds = await this.birdRepository.findMany({});
+    return birds.map((bird) => BirdResultDto.fromDomain(bird));
+  }
+
+  async getEasyToFindBirds(): Promise<BirdResultDto[]> {
+    const birds = await this.birdRepository.findMany({ easyToFind: true });
     return birds.map((bird) => BirdResultDto.fromDomain(bird));
   }
 }

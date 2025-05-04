@@ -13,6 +13,8 @@ export class BirdMapper {
       ecoTrait: entity.ecoTrait,
       districts: entity.districts,
       imageUrl: entity.imageUrl,
+      easyToFind: entity.easyToFind,
+      bookImageUrl: entity.bookImageUrl,
       createdAt: DateUtils.toKst(entity.createdAt),
       updatedAt: DateUtils.toKst(entity.updatedAt),
       deletedAt: entity.deletedAt ? DateUtils.toKst(entity.deletedAt) : null,
@@ -39,6 +41,8 @@ export class BirdMapper {
     birdEntity.ecoTrait = bird.ecoTrait;
     birdEntity.districts = bird.districts;
     birdEntity.imageUrl = bird.imageUrl;
+    birdEntity.easyToFind = bird.easyToFind;
+    birdEntity.bookImageUrl = bird.bookImageUrl;
     birdEntity.createdAt = DateUtils.toUtcDate(bird.createdAt);
     birdEntity.updatedAt = DateUtils.toUtcDate(bird.updatedAt);
     birdEntity.deletedAt = bird.deletedAt ? DateUtils.toUtcDate(bird.deletedAt) : null;

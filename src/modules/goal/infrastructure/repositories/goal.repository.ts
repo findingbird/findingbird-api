@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, FindOptionsWhere, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, In, Repository } from 'typeorm';
 
 import { DateUtils } from '~/common/utils/Date.utils';
 import { GoalFilter, IGoalRepository } from '~/modules/goal/application/ports/out/goal.repository.port';
@@ -20,11 +20,19 @@ export class GoalRepository implements IGoalRepository {
     return goalEntity ? GoalMapper.toDomain(goalEntity) : null;
   }
 
+  async findByBirdIds(userId: string, birdIds: string[]): Promise<Goal[]> {
+    const goalEntities = await this.goalRepository.find({
+      where: { userId, birdId: In(birdIds) },
+    });
+    return GoalMapper.toDomains(goalEntities);
+  }
+
   async findMany(filter: GoalFilter): Promise<Goal[]> {
     const { userId, year, month, day } = filter;
     const findOptionsWhere: FindOptionsWhere<GoalEntity> = {
       userId,
     };
+
     if (year !== undefined && month !== undefined && day !== undefined) {
       const startDate = DateUtils.toUtcDate(`${year}-${month}-${day}`);
       const endDate = DateUtils.toUtcDate(`${year}-${month}-${day + 1}`);
