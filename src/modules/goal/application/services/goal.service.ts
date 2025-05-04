@@ -30,29 +30,31 @@ export class GoalService implements IGoalService {
 
   async createGoal(dto: CreateGoalDto): Promise<GoalResultDto> {
     const { userId, district } = dto;
-    const now = DateUtils.now();
-    const year = now.year();
-    const month = now.month() + 1; // month는 0부터 시작하므로 +1
-    const day = now.date();
-    const todayGoals = await this.goalRepository.findMany({
+    const prevGoals = await this.goalRepository.findMany({
       userId,
-      year,
-      month,
-      day,
+    });
+    const todayGoals = prevGoals.filter((goal) => {
+      const now = DateUtils.now();
+      const createdAt = goal.createdAt;
+      return createdAt.isBetween(now.startOf('day'), now.endOf('day'));
     });
     if (todayGoals.length >= 3) {
       throw new BadRequestError(Goal.domainName, '최대 3개의 목표를 생성할 수 있습니다.');
     }
 
     const birds = await this.birdService.getAllBirds();
-    const prevGoals = await this.goalRepository.findMany({
-      userId,
-    });
+    const birdsInBook = birds.filter((bird) => bird.easyToFind);
+
+    const foundedBirdIds = prevGoals.filter((goal) => goal.isCompleted).map((goal) => goal.birdId);
+    const foundedBirdsInBook = birdsInBook.filter((bird) => foundedBirdIds.includes(bird.id));
+    const bookCompleted = foundedBirdsInBook.length === birdsInBook.length;
 
     const bird = await this.birdRecommendationService.recommendBird({
       district,
       prevGoals,
-      availableBirds: birds,
+      // 도감이 다 채워졌으면 모든 새로부터 추천
+      // 도감이 다 채워지지 않았으면 도감에 있는 새들로부터 추천
+      availableBirds: bookCompleted ? birds : birdsInBook,
     });
 
     const goal = Goal.createNew({
