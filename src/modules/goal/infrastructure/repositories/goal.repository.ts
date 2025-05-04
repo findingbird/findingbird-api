@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
 
 import { DateUtils } from '~/common/utils/Date.utils';
+import { GoalFilter, IGoalRepository } from '~/modules/goal/application/ports/out/goal.repository.port';
 import { Goal } from '~/modules/goal/domain/models/goal';
-import { GoalFilter, IGoalRepository } from '~/modules/goal/domain/repositories/goal.repository.interface';
 import { GoalEntity } from '~/modules/goal/infrastructure/entities/goal.entity';
 import { GoalMapper } from '~/modules/goal/infrastructure/mappers/goal.mappers';
 

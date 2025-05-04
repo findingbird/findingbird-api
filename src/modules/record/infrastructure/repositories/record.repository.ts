@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, Repository } from 'typeorm';
 
 import { DateUtils } from '~/common/utils/Date.utils';
+import { IRecordRepository, RecordFilter } from '~/modules/record/application/ports/out/record.repository.port';
 import { Record } from '~/modules/record/domain/models/record';
-import { IRecordRepository, RecordFilter } from '~/modules/record/domain/repositories/record.repository.interface';
 import { RecordEntity } from '~/modules/record/infrastructure/entities/record.entity';
 import { RecordMapper } from '~/modules/record/infrastructure/mappers/record.mapper';
 

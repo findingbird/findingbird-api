@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { BIRD_READER } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
+import { BIRD_SERVICE } from '~/modules/bird/application/ports/in/bird.service.port';
+import { BIRD_REPOSITORY } from '~/modules/bird/application/ports/out/bird.repository.port';
 import { BirdService } from '~/modules/bird/application/services/bird.service';
-import { BIRD_REPOSITORY } from '~/modules/bird/domain/repositories/bird.repository.interface';
 import { BirdEntity } from '~/modules/bird/infrastructure/entities/bird.entity';
 import { BirdRepository } from '~/modules/bird/infrastructure/repositories/bird.repository';
 
@@ -11,16 +11,15 @@ import { BirdRepository } from '~/modules/bird/infrastructure/repositories/bird.
   imports: [TypeOrmModule.forFeature([BirdEntity])],
   controllers: [],
   providers: [
-    BirdService,
+    {
+      provide: BIRD_SERVICE,
+      useClass: BirdService,
+    },
     {
       provide: BIRD_REPOSITORY,
       useClass: BirdRepository,
     },
-    {
-      provide: BIRD_READER,
-      useExisting: BirdService,
-    },
   ],
-  exports: [BIRD_READER],
+  exports: [BIRD_SERVICE],
 })
 export class BirdModule {}

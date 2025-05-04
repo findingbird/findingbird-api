@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { IUserRepository } from '~/modules/user/application/ports/out/user.repository.port';
 import { User } from '~/modules/user/domain/models/user';
-import { IUserRepository } from '~/modules/user/domain/repositories/user.repository.interface';
 import { UserEntity } from '~/modules/user/infrastructure/entities/user.entity';
 import { UserMapper } from '~/modules/user/infrastructure/mappers/user.mapper';
 

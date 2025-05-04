@@ -2,30 +2,30 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { GetUserByIdDto } from '~/modules/user/application/dtos/get-user-by-id.dto';
-import { UserResponseDto } from '~/modules/user/application/dtos/user.response.dto';
-import { IUserPersister } from '~/modules/user/application/interfaces/user-persister.interface';
+import { UserResultDto } from '~/modules/user/application/dtos/user-result.dto';
+import { IUserService } from '~/modules/user/application/ports/in/user.service.port';
+import { IUserRepository, USER_REPOSITORY } from '~/modules/user/application/ports/out/user.repository.port';
 import { User } from '~/modules/user/domain/models/user';
-import { IUserRepository, USER_REPOSITORY } from '~/modules/user/domain/repositories/user.repository.interface';
 
 @Injectable()
-export class UserService implements IUserPersister {
+export class UserService implements IUserService {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: IUserRepository
   ) {}
 
-  async createUser(): Promise<UserResponseDto> {
+  async createUser(): Promise<UserResultDto> {
     const user = User.createNew({});
     await this.userRepository.save(user);
-    return UserResponseDto.fromDomain(user);
+    return UserResultDto.fromDomain(user);
   }
 
-  async getUserById(dto: GetUserByIdDto): Promise<User> {
+  async getUserById(dto: GetUserByIdDto): Promise<UserResultDto> {
     const { userId } = dto;
     const user = await this.userRepository.findById(userId);
     if (!user) {
       throw new NotFoundError(User.domainName, userId);
     }
-    return user;
+    return UserResultDto.fromDomain(user);
   }
 }

@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 
+import { IBirdRepository } from '~/modules/bird/application/ports/out/bird.repository.port';
 import { Bird } from '~/modules/bird/domain/models/bird';
-import { IBirdRepository } from '~/modules/bird/domain/repositories/bird.repository.interface';
 import { BirdEntity } from '~/modules/bird/infrastructure/entities/bird.entity';
 import { BirdMapper } from '~/modules/bird/infrastructure/mappers/bird.mapper';
 

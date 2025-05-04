@@ -1,3 +1,3 @@
 export class KakaoLoginDto {
-  kakaoId: string;
+  readonly kakaoId: string;
 }

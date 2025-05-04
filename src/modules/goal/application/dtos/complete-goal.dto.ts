@@ -1,4 +1,4 @@
 export class CompleteGoalDto {
-  userId: string;
-  goalId: string;
+  readonly userId: string;
+  readonly goalId: string;
 }

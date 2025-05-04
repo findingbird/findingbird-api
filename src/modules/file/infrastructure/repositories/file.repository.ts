@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
+import { IFileRepository } from '~/modules/file/application/ports/out/file.repository.port';
 import { File } from '~/modules/file/domain/models/file';
-import { IFileRepository } from '~/modules/file/domain/repositories/file.repository.interface';
 import { FileEntity } from '~/modules/file/infrastructure/entities/file.entity';
 import { FileMapper } from '~/modules/file/infrastructure/mappers/file.mapper';
 

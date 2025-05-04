@@ -1,5 +1,5 @@
 export class GetRecordsByMonthDto {
-  userId: string;
-  year: number;
-  month: number;
+  readonly userId: string;
+  readonly year: number;
+  readonly month: number;
 }

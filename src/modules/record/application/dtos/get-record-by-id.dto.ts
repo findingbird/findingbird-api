@@ -1,3 +1,3 @@
 export class GetRecordByIdDto {
-  recordId: string;
+  readonly recordId: string;
 }

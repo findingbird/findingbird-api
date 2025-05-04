@@ -1,3 +1,3 @@
 export class GetBirdByIdDto {
-  birdId: string;
+  readonly birdId: string;
 }

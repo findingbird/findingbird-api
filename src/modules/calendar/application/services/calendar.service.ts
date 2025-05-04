@@ -1,34 +1,28 @@
 import { Inject, Injectable } from '@nestjs/common';
 
-import { CalendarDataDto, DailyDataDto } from '~/modules/calendar/application/dto/calendar.dto';
+import { CalendarResultDto, DailyDataDto } from '~/modules/calendar/application/dto/calendar-result.dto';
 import { GetCalendarDto } from '~/modules/calendar/application/dto/get-calendar.dto';
-import {
-  GOAL_READER,
-  IGoalReader,
-  IGoalResponseDto,
-} from '~/modules/goal/application/interfaces/goal-reader.interface';
-import {
-  IRecordReader,
-  IRecordResponseDto,
-  RECORD_READER,
-} from '~/modules/record/application/interfaces/record-reader.interface';
+import { GoalResultDto } from '~/modules/goal/application/dtos/goal-result.dto';
+import { GOAL_SERVICE, IGoalService } from '~/modules/goal/application/ports/in/goal.service.port';
+import { RecordResultDto } from '~/modules/record/application/dtos/record-result.dto';
+import { IRecordService, RECORD_SERVICE } from '~/modules/record/application/ports/in/record.service.port';
 
 @Injectable()
 export class CalendarService {
   constructor(
-    @Inject(RECORD_READER)
-    private readonly recordReader: IRecordReader,
-    @Inject(GOAL_READER)
-    private readonly goalReader: IGoalReader
+    @Inject(RECORD_SERVICE)
+    private readonly recordService: IRecordService,
+    @Inject(GOAL_SERVICE)
+    private readonly goalService: IGoalService
   ) {}
 
-  async getCalendar(dto: GetCalendarDto): Promise<CalendarDataDto> {
+  async getCalendar(dto: GetCalendarDto): Promise<CalendarResultDto> {
     const { userId, year, month } = dto;
-    const records = await this.recordReader.getRecordsByMonth({ userId, year, month });
-    const goals = await this.goalReader.getGoalsByMonth({ userId, year, month });
+    const records = await this.recordService.getRecordsByMonth({ userId, year, month });
+    const goals = await this.goalService.getGoalsByMonth({ userId, year, month });
 
     const lastDayOfMonth = new Date(year, month, 0).getDate();
-    const calenarDataByDate = new Map<number, { records: IRecordResponseDto[]; goals: IGoalResponseDto[] }>();
+    const calenarDataByDate = new Map<number, { records: RecordResultDto[]; goals: GoalResultDto[] }>();
 
     for (let day = 1; day <= lastDayOfMonth; day++) {
       calenarDataByDate.set(day, { records: [], goals: [] });

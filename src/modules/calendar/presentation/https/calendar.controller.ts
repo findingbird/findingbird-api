@@ -1,17 +1,18 @@
-import { Controller, Get, Query, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
-import { CalendarService } from '~/modules/calendar/application/services/calendar.service';
-import {
-  CalendarRequestQueryDto,
-  CalendarResponseDto,
-} from '~/modules/calendar/presentation/https/dtos/calendar.response.dto';
+import { CALENDAR_SERVICE, ICalendarService } from '~/modules/calendar/application/ports/in/calendar.service.port';
+import { CalendarResponseDto } from '~/modules/calendar/presentation/https/dtos/calendar.response.dto';
+import { GetCalendarRequestQueryDto } from '~/modules/calendar/presentation/https/dtos/get-calendar.request.dto';
 
 @Controller('calendar')
 export class CalendarController {
-  constructor(private readonly calendarService: CalendarService) {}
+  constructor(
+    @Inject(CALENDAR_SERVICE)
+    private readonly calendarService: ICalendarService
+  ) {}
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
@@ -26,7 +27,7 @@ export class CalendarController {
     description: '달력 조회 성공',
     type: CalendarResponseDto,
   })
-  async getCalendar(@Req() req: UserRequest, @Query() query: CalendarRequestQueryDto): Promise<CalendarResponseDto> {
+  async getCalendar(@Req() req: UserRequest, @Query() query: GetCalendarRequestQueryDto): Promise<CalendarResponseDto> {
     const { userId } = req.user;
     const { year, month } = query;
     const calendarData = await this.calendarService.getCalendar({ userId, year, month });

@@ -1,25 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsInt, Max, Min } from 'class-validator';
 
 import { DateUtils } from '~/common/utils/Date.utils';
-import { CalendarDataDto } from '~/modules/calendar/application/dto/calendar.dto';
-
-export class CalendarRequestQueryDto {
-  @ApiProperty({ description: '조회할 연도', example: 2025 })
-  @IsInt()
-  @Min(2000)
-  @Max(2100)
-  @Type(() => Number)
-  year: number;
-
-  @ApiProperty({ description: '조회할 월(1-12)', example: 4 })
-  @IsInt()
-  @Min(1)
-  @Max(12)
-  @Type(() => Number)
-  month: number;
-}
+import { CalendarResultDto } from '~/modules/calendar/application/dto/calendar-result.dto';
 
 export class RecordPreviewDto {
   @ApiProperty({
@@ -78,9 +60,9 @@ export class CalendarResponseDto {
   })
   dailyPreviews: DailyPreviewDto[];
 
-  static fromData(data: CalendarDataDto): CalendarResponseDto {
+  static fromData(calendar: CalendarResultDto): CalendarResponseDto {
     const response = new CalendarResponseDto();
-    response.dailyPreviews = data.dailyData.map((dailyData) => {
+    response.dailyPreviews = calendar.dailyData.map((dailyData) => {
       const dailyPreview = new DailyPreviewDto();
       dailyPreview.date = dailyData.date;
       dailyPreview.hasRecords = dailyData.hasRecords;

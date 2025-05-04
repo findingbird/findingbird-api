@@ -1,15 +1,18 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
-import { GoalService } from '~/modules/goal/application/services/goal.service';
+import { GOAL_SERVICE, IGoalService } from '~/modules/goal/application/ports/in/goal.service.port';
 import { CreateGoalRequestDto } from '~/modules/goal/presentation/http/dtos/create-goal.request.dto';
 import { GoalResponseDto } from '~/modules/goal/presentation/http/dtos/goal.response.dto';
 
 @Controller('goal')
 export class GoalController {
-  constructor(private readonly goalService: GoalService) {}
+  constructor(
+    @Inject(GOAL_SERVICE)
+    private readonly goalService: IGoalService
+  ) {}
 
   @Get('/')
   @UseGuards(JwtAuthGuard)
@@ -26,7 +29,7 @@ export class GoalController {
   async getGoalsByDay(@Req() req: UserRequest): Promise<GoalResponseDto[]> {
     const { userId } = req.user;
     const goalWithBirds = await this.goalService.getTodayGoals({ userId });
-    return goalWithBirds.map(({ goal, bird }) => GoalResponseDto.fromDomain(goal, bird));
+    return goalWithBirds.map((goalWithBird) => GoalResponseDto.fromData(goalWithBird));
   }
 
   @Get('/:id')
@@ -48,7 +51,7 @@ export class GoalController {
   })
   async getGoalById(@Param('id') goalId: string): Promise<GoalResponseDto> {
     const goalWithBird = await this.goalService.getGoalById({ goalId });
-    return GoalResponseDto.fromDomain(goalWithBird.goal, goalWithBird.bird);
+    return GoalResponseDto.fromData(goalWithBird);
   }
 
   @Post('/')
@@ -67,6 +70,6 @@ export class GoalController {
     const { userId } = req.user;
     const { district } = body;
     const goalWithBird = await this.goalService.createGoal({ userId, district });
-    return GoalResponseDto.fromDomain(goalWithBird.goal, goalWithBird.bird);
+    return GoalResponseDto.fromData(goalWithBird);
   }
 }

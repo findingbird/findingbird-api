@@ -1,3 +1,3 @@
 export class GetGoalByIdDto {
-  goalId: string;
+  readonly goalId: string;
 }

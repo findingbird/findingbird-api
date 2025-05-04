@@ -4,60 +4,33 @@ import { BadRequestError } from '~/common/exceptions/BadRequestError';
 import { InternalServerError } from '~/common/exceptions/InternelServerError';
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { DateUtils } from '~/common/utils/Date.utils';
-import { LLMPrompt } from '~/modules/ai/application/dtos/llm.dto';
-import { ILLMClient, LLM_CLIENT } from '~/modules/ai/application/interfaces/llm-client.interface';
-import {
-  BIRD_READER,
-  IBirdReader,
-  IBirdResponseDto,
-} from '~/modules/bird/application/interfaces/bird-reader.service.interface';
+import { LLMPromptDto } from '~/modules/ai/application/dtos/llm-prompt.dto';
+import { AI_SERVICE, IAIService } from '~/modules/ai/application/ports/in/ai.service.port';
+import { BirdResultDto } from '~/modules/bird/application/dtos/bird-result.dto';
+import { BIRD_SERVICE, IBirdService } from '~/modules/bird/application/ports/in/bird.service.port';
 import { Bird } from '~/modules/bird/domain/models/bird';
 import { CompleteGoalDto } from '~/modules/goal/application/dtos/complete-goal.dto';
 import { CreateGoalDto } from '~/modules/goal/application/dtos/create-goal.dto';
 import { GetGoalByIdDto } from '~/modules/goal/application/dtos/get-goal-by-id.dto';
-import { GetGoalsByDayDto } from '~/modules/goal/application/dtos/get-goals-by-day.dto';
 import { GetGoalsByMonthDto } from '~/modules/goal/application/dtos/get-goals-by-month.dto';
-import { GoalResponseDto } from '~/modules/goal/application/dtos/goal.response.dto';
-import { GoalWithBirdDto } from '~/modules/goal/application/dtos/goal-with-bird.dto';
-import { IGoalPersister } from '~/modules/goal/application/interfaces/goal-persister.interface';
-import { IGoalReader } from '~/modules/goal/application/interfaces/goal-reader.interface';
+import { GetTodayGoalsDto } from '~/modules/goal/application/dtos/get-today-goals.dto';
+import { GoalResultDto } from '~/modules/goal/application/dtos/goal-result.dto';
+import { IGoalService } from '~/modules/goal/application/ports/in/goal.service.port';
+import { GOAL_REPOSITORY, IGoalRepository } from '~/modules/goal/application/ports/out/goal.repository.port';
 import { Goal } from '~/modules/goal/domain/models/goal';
-import { GOAL_REPOSITORY, IGoalRepository } from '~/modules/goal/domain/repositories/goal.repository.interface';
 
 @Injectable()
-export class GoalService implements IGoalReader, IGoalPersister {
+export class GoalService implements IGoalService {
   constructor(
     @Inject(GOAL_REPOSITORY)
     private readonly goalRepository: IGoalRepository,
-    @Inject(BIRD_READER)
-    private readonly birdReader: IBirdReader,
-    @Inject(LLM_CLIENT)
-    private readonly llmClient: ILLMClient
+    @Inject(BIRD_SERVICE)
+    private readonly birdService: IBirdService,
+    @Inject(AI_SERVICE)
+    private readonly aiService: IAIService
   ) {}
 
-  async getGoalsByMonth(dto: GetGoalsByMonthDto): Promise<GoalResponseDto[]> {
-    const { userId, year, month } = dto;
-    const goals = await this.goalRepository.findMany({ userId, year, month });
-
-    return goals.map((goal) => GoalResponseDto.fromDomain(goal));
-  }
-
-  async completeGoal(dto: CompleteGoalDto): Promise<void> {
-    const { userId, goalId } = dto;
-    const goal = await this.goalRepository.findById(goalId);
-
-    if (!goal) {
-      throw new NotFoundError(Goal.domainName, goalId);
-    }
-    if (goal.userId !== userId) {
-      throw new BadRequestError(Goal.domainName, '해당 목표는 다른 사용자의 목표입니다.');
-    }
-
-    goal.complete();
-    await this.goalRepository.save(goal);
-  }
-
-  async createGoal(dto: CreateGoalDto): Promise<GoalWithBirdDto> {
+  async createGoal(dto: CreateGoalDto): Promise<GoalResultDto> {
     const { userId, district } = dto;
     const now = DateUtils.now();
     const year = now.year();
@@ -73,13 +46,13 @@ export class GoalService implements IGoalReader, IGoalPersister {
       throw new BadRequestError(Bird.domainName, '최대 3개의 목표를 생성할 수 있습니다.');
     }
 
-    const birds = await this.birdReader.getAllBirds();
+    const birds = await this.birdService.getAllBirds();
     const prevGoals = await this.goalRepository.findMany({
       userId,
     });
 
     const prompt = this.makeRecommentPrompt(district, prevGoals, birds);
-    const recommendedBirdId = (await this.llmClient.invoke(prompt)).response.trim().replace(/^"|"$/g, '');
+    const recommendedBirdId = (await this.aiService.getLLMResponse(prompt)).response.trim().replace(/^"|"$/g, '');
     const bird = birds.find((bird) => bird.id === recommendedBirdId);
     if (!bird) {
       throw new InternalServerError(
@@ -94,20 +67,57 @@ export class GoalService implements IGoalReader, IGoalPersister {
     });
     await this.goalRepository.save(goal);
 
-    return { goal, bird };
+    return GoalResultDto.fromDomain(goal, bird);
   }
 
-  async getGoalById(dto: GetGoalByIdDto): Promise<GoalWithBirdDto> {
+  async completeGoal(dto: CompleteGoalDto): Promise<GoalResultDto> {
+    const { userId, goalId } = dto;
+    const goal = await this.goalRepository.findById(goalId);
+
+    if (!goal) {
+      throw new NotFoundError(Goal.domainName, goalId);
+    }
+    if (goal.userId !== userId) {
+      throw new BadRequestError(Goal.domainName, '해당 목표는 다른 사용자의 목표입니다.');
+    }
+
+    goal.complete();
+    await this.goalRepository.save(goal);
+
+    const bird = await this.birdService.getBirdById({ birdId: goal.birdId });
+
+    return GoalResultDto.fromDomain(goal, bird);
+  }
+
+  async getGoalById(dto: GetGoalByIdDto): Promise<GoalResultDto> {
     const { goalId } = dto;
     const goal = await this.goalRepository.findById(goalId);
     if (!goal) {
       throw new NotFoundError(Goal.domainName, goalId);
     }
 
-    return this.getGoalWithBird(goal);
+    const bird = await this.birdService.getBirdById({ birdId: goal.birdId });
+    return GoalResultDto.fromDomain(goal, bird);
   }
 
-  async getTodayGoals(dto: GetGoalsByDayDto): Promise<GoalWithBirdDto[]> {
+  async getGoalsByMonth(dto: GetGoalsByMonthDto): Promise<GoalResultDto[]> {
+    const { userId, year, month } = dto;
+    const goals = await this.goalRepository.findMany({ userId, year, month });
+
+    const birdIds = goals.map((goal) => goal.birdId);
+    const birds = await this.birdService.getBirdsByIds({ birdIds });
+    const birdMap = new Map(birds.map((bird) => [bird.id, bird]));
+
+    return goals.map((goal) => {
+      const bird = birdMap.get(goal.birdId);
+      if (!bird) {
+        throw new InternalServerError(Goal.domainName, `목표에 해당하는 새를 찾을 수 없습니다. 목표 ID: ${goal.id}`);
+      }
+      return GoalResultDto.fromDomain(goal, bird);
+    });
+  }
+
+  async getTodayGoals(dto: GetTodayGoalsDto): Promise<GoalResultDto[]> {
     const { userId } = dto;
     const now = DateUtils.now();
     const year = now.year();
@@ -120,34 +130,20 @@ export class GoalService implements IGoalReader, IGoalPersister {
       day,
     });
 
-    return this.getGoalWithBird(goals);
+    const birdIds = goals.map((goal) => goal.birdId);
+    const birds = await this.birdService.getBirdsByIds({ birdIds });
+    const birdMap = new Map(birds.map((bird) => [bird.id, bird]));
+
+    return goals.map((goal) => {
+      const bird = birdMap.get(goal.birdId);
+      if (!bird) {
+        throw new InternalServerError(Goal.domainName, `목표에 해당하는 새를 찾을 수 없습니다. 목표 ID: ${goal.id}`);
+      }
+      return GoalResultDto.fromDomain(goal, bird);
+    });
   }
 
-  // 목표에 맞는 새 가져오기
-  private async getGoalWithBird(goal: Goal): Promise<GoalWithBirdDto>;
-  private async getGoalWithBird(goals: Goal[]): Promise<GoalWithBirdDto[]>;
-  private async getGoalWithBird(goal: Goal | Goal[]): Promise<GoalWithBirdDto | GoalWithBirdDto[]> {
-    if (Array.isArray(goal)) {
-      const birdIds = goal.map((g) => g.birdId);
-      const birds = await this.birdReader.getBirdsByIds({ birdIds });
-      const birdMap = new Map<string, Bird>();
-      birds.forEach((bird: Bird) => {
-        birdMap.set(bird.id, bird);
-      });
-      return goal.map((g) => {
-        const bird = birdMap.get(g.birdId);
-        if (!bird) {
-          throw new NotFoundError(Bird.domainName, g.birdId);
-        }
-        return { goal: g, bird };
-      });
-    }
-
-    const bird = await this.birdReader.getBirdById({ birdId: goal.birdId });
-    return { goal, bird };
-  }
-
-  private makeRecommentPrompt(district: string, prevGoals: Goal[], birds: IBirdResponseDto[]): LLMPrompt {
+  private makeRecommentPrompt(district: string, prevGoals: Goal[], birds: BirdResultDto[]): LLMPromptDto {
     return {
       system: `너는 조류 탐사를 도와주는 전문가야. 
       사용자 위치, 계절, 출현 빈도, 서식 특성 등을 고려해 탐사하기 가장 좋은 새 하나를 골라야 해. 

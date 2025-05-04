@@ -1,19 +1,33 @@
-import { Body, Controller, Get, Param, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
-import { RecordService } from '~/modules/record/application/services/record.service';
+import { IRecordService, RECORD_SERVICE } from '~/modules/record/application/ports/in/record.service.port';
 import {
   CreateRecordRequestDto,
   CreateRecordSwaggerDto,
-} from '~/modules/record/presentation/http/dtos/create-record.dto';
+} from '~/modules/record/presentation/http/dtos/create-record.request.dto';
 import { RecordResponseDto } from '~/modules/record/presentation/http/dtos/record.reseponse.dto';
 
 @Controller('record')
 export class RecordController {
-  constructor(private readonly recordService: RecordService) {}
+  constructor(
+    @Inject(RECORD_SERVICE)
+    private readonly recordService: IRecordService
+  ) {}
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
@@ -34,7 +48,7 @@ export class RecordController {
   })
   async getRecordById(@Param('id') recordId: string): Promise<RecordResponseDto> {
     const record = await this.recordService.getRecordById({ recordId });
-    return RecordResponseDto.fromDomain(record);
+    return RecordResponseDto.fromData(record);
   }
 
   @Post('/')
@@ -61,6 +75,6 @@ export class RecordController {
   ): Promise<RecordResponseDto> {
     const { userId } = req.user;
     const record = await this.recordService.createRecord({ ...body, userId, image: file });
-    return RecordResponseDto.fromDomain(record);
+    return RecordResponseDto.fromData(record);
   }
 }

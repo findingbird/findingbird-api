@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import OpenAI from 'openai';
-import { ChatCompletionMessageParam } from 'openai/resources/chat';
 
 import { InternalServerError } from '~/common/exceptions/InternelServerError';
-import { LLMPrompt, LLMResponse } from '~/modules/ai/application/dtos/llm.dto';
-import { ILLMClient } from '~/modules/ai/application/interfaces/llm-client.interface';
+import { OpenAIParamDto } from '~/modules/ai/application/dtos/openai-param.dto';
+import { OpenAIResultDto } from '~/modules/ai/application/dtos/openai-result.dto';
+import { IOpenAIClient } from '~/modules/ai/application/ports/out/openai.client.port';
 
 @Injectable()
-export class OpenAIClient implements ILLMClient {
+export class OpenAIClient implements IOpenAIClient {
   private readonly api: OpenAI;
 
   constructor(private readonly configService: ConfigService) {
@@ -18,23 +18,18 @@ export class OpenAIClient implements ILLMClient {
     });
   }
 
-  async invoke(prompt: LLMPrompt): Promise<LLMResponse> {
-    const { system, user, options } = prompt;
-    const messages: ChatCompletionMessageParam[] = [];
-    if (system) {
-      messages.push({ role: 'system', content: system });
-    }
-    messages.push({ role: 'user', content: user });
+  async invoke(params: OpenAIParamDto): Promise<OpenAIResultDto> {
+    const { model, messages, temperature, max_tokens } = params;
     const completion = await this.api.chat.completions.create({
-      model: options?.model ?? 'gpt-3.5-turbo',
+      model: model,
       messages,
-      temperature: options?.temperature ?? 0.7,
-      max_tokens: 1024,
+      temperature: temperature ?? 0.7,
+      max_tokens: max_tokens ?? 1024,
     });
-    const response = completion.choices[0].message.content;
-    if (response === null) {
+    const result = completion.choices[0].message.content;
+    if (result === null) {
       throw new InternalServerError('AI', 'AI 응답 생성에 실패하였습니다.');
     }
-    return { response };
+    return { result };
   }
 }

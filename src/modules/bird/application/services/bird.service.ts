@@ -1,41 +1,41 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
-import { BirdResponseDto } from '~/modules/bird/application/dtos/bird.response';
+import { BirdResultDto } from '~/modules/bird/application/dtos/bird-result.dto';
 import { GetBirdByIdDto } from '~/modules/bird/application/dtos/get-bird-by-id.dto';
-import { GetBirdsByIdsDto } from '~/modules/bird/application/dtos/get-bird-by-ids.dto';
-import { IBirdReader } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
+import { GetBirdsByIdsDto } from '~/modules/bird/application/dtos/get-birds-by-ids.dto';
+import { IBirdService } from '~/modules/bird/application/ports/in/bird.service.port';
+import { BIRD_REPOSITORY, IBirdRepository } from '~/modules/bird/application/ports/out/bird.repository.port';
 import { Bird } from '~/modules/bird/domain/models/bird';
-import { BIRD_REPOSITORY, IBirdRepository } from '~/modules/bird/domain/repositories/bird.repository.interface';
-
 @Injectable()
-export class BirdService implements IBirdReader {
+export class BirdService implements IBirdService {
   constructor(
     @Inject(BIRD_REPOSITORY)
     private readonly birdRepository: IBirdRepository
   ) {}
 
-  async getAllBirds(): Promise<BirdResponseDto[]> {
-    const birds = await this.birdRepository.findAll();
-    return birds.map((bird) => BirdResponseDto.fromDomain(bird));
-  }
-
-  async getBirdById(dto: GetBirdByIdDto): Promise<BirdResponseDto> {
+  async getBirdById(dto: GetBirdByIdDto): Promise<BirdResultDto> {
     const { birdId } = dto;
     const bird = await this.birdRepository.findById(birdId);
     if (!bird) {
       throw new NotFoundError(Bird.domainName, birdId);
     }
-    return BirdResponseDto.fromDomain(bird);
+    return BirdResultDto.fromDomain(bird);
   }
 
-  async getBirdsByIds(dto: GetBirdsByIdsDto): Promise<BirdResponseDto[]> {
+  async getBirdsByIds(dto: GetBirdsByIdsDto): Promise<BirdResultDto[]> {
     const { birdIds } = dto;
     const birds = await this.birdRepository.findByIds(birdIds);
     if (birds.length !== birdIds.length) {
       const notFoundBirdIds = birdIds.filter((birdId) => !birds.some((bird) => bird.id === birdId));
       throw new NotFoundError(Bird.domainName, notFoundBirdIds.join(', '));
     }
-    return birds.map((bird) => BirdResponseDto.fromDomain(bird));
+    return birds.map((bird) => BirdResultDto.fromDomain(bird));
+  }
+
+  async getAllBirds(): Promise<BirdResultDto[]> {
+    // Updated return type to BirdResultDto[]
+    const birds = await this.birdRepository.findAll();
+    return birds.map((bird) => BirdResultDto.fromDomain(bird));
   }
 }

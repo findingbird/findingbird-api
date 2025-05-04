@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
@@ -8,13 +8,14 @@ import { JwtRefreshGuard } from '~/common/guards/jwt-refresh-guard';
 import { KakaoRequest } from '~/common/interfaces/kakao-request.interface';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
 import { KakaoLoginDto } from '~/modules/auth/application/dtos/kakao-login.dto';
-import { AuthService } from '~/modules/auth/application/services/auth.service';
-import { TokenResponseDto } from '~/modules/auth/presentation/http/dtos/token.response';
+import { AUTH_SERVICE, IAuthService } from '~/modules/auth/application/ports/in/auth.service.port';
+import { TokenResponseDto } from '~/modules/auth/presentation/http/dtos/token.response.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
+    @Inject(AUTH_SERVICE)
+    private readonly authService: IAuthService,
     private readonly configService: ConfigService
   ) {}
 
@@ -51,7 +52,7 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: this.authService.refreshExpiresInSecond * 1000,
+      maxAge: (this.configService.get<string>('NODE_ENV') === 'development' ? 7 : 30) * 24 * 60 * 60 * 1000,
     });
     const clientUrl = this.configService.get<string>('CLIENT_URL');
     // TODO: client redirect URL 확인 및 수정"
@@ -80,7 +81,7 @@ export class AuthController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      maxAge: this.authService.refreshExpiresInSecond * 1000,
+      maxAge: (this.configService.get<string>('NODE_ENV') === 'development' ? 7 : 30) * 24 * 60 * 60 * 1000,
     });
     return { accessToken: token.accessToken };
   }

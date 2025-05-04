@@ -1,4 +1,4 @@
 export class CreateGoalDto {
-  userId: string;
-  district: string;
+  readonly userId: string;
+  readonly district: string;
 }

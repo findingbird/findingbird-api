@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsRelations, Repository } from 'typeorm';
 
+import { IAuthRepository } from '~/modules/auth/application/ports/out/auth.repository.port';
 import { Auth } from '~/modules/auth/domain/models/auth';
-import { IAuthRepository } from '~/modules/auth/domain/repositories/auth.repository.interface';
 import { AuthEntity } from '~/modules/auth/infrastructure/entities/auth.entity';
 import { AuthMapper } from '~/modules/auth/infrastructure/mappers/auth.mapper';
 

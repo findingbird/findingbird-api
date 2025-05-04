@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { DateUtils } from '~/common/utils/Date.utils';
-import { Record } from '~/modules/record/domain/models/record';
+import { RecordResultDto } from '~/modules/record/application/dtos/record-result.dto';
 
 export class RecordResponseDto {
   @ApiProperty({
@@ -62,7 +62,7 @@ export class RecordResponseDto {
   })
   createdAt: string;
 
-  static fromDomain(record: Record): RecordResponseDto {
+  static fromData(record: RecordResultDto): RecordResponseDto {
     return {
       id: record.id,
       imageUrl: record.imageUrl,

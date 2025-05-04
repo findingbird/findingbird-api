@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 
-import { LLM_CLIENT } from '~/modules/ai/application/interfaces/llm-client.interface';
+import { AI_SERVICE } from '~/modules/ai/application/ports/in/ai.service.port';
+import { OPENAI_CLIENT } from '~/modules/ai/application/ports/out/openai.client.port';
+import { AIService } from '~/modules/ai/application/services/ai.service';
 import { OpenAIClient } from '~/modules/ai/infrastructure/openai/openai.client';
 
 @Module({
@@ -8,10 +10,14 @@ import { OpenAIClient } from '~/modules/ai/infrastructure/openai/openai.client';
   controllers: [],
   providers: [
     {
-      provide: LLM_CLIENT,
+      provide: AI_SERVICE,
+      useClass: AIService,
+    },
+    {
+      provide: OPENAI_CLIENT,
       useClass: OpenAIClient,
     },
   ],
-  exports: [LLM_CLIENT],
+  exports: [AI_SERVICE],
 })
 export class AiModule {}

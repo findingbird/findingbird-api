@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { DateUtils } from '~/common/utils/Date.utils';
-import { BirdResponseDto } from '~/modules/bird/application/dtos/bird.response';
-import { IBirdResponseDto } from '~/modules/bird/application/interfaces/bird-reader.service.interface';
-import { Goal } from '~/modules/goal/domain/models/goal';
+import { GoalResultDto } from '~/modules/goal/application/dtos/goal-result.dto';
+import { BirdResponseDto } from '~/modules/goal/presentation/http/dtos/bird.response.dto';
 
 export class GoalResponseDto {
   @ApiProperty({
@@ -28,14 +27,14 @@ export class GoalResponseDto {
     description: '목표 새',
     type: BirdResponseDto,
   })
-  bird: IBirdResponseDto;
+  bird: BirdResponseDto;
 
-  static fromDomain(goal: Goal, bird: IBirdResponseDto): GoalResponseDto {
+  static fromData(goal: GoalResultDto): GoalResponseDto {
     return {
       id: goal.id,
       isCompleted: goal.isCompleted,
       createdAt: DateUtils.format(goal.createdAt),
-      bird,
+      bird: BirdResponseDto.fromData(goal.bird),
     };
   }
 }
