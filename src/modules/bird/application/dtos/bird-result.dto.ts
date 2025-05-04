@@ -10,6 +10,8 @@ export class BirdResultDto {
   readonly ecoTrait: string | null;
   readonly districts: string[];
   readonly imageUrl: string;
+  readonly easyToFind: boolean;
+  readonly bookImageUrl: string | null;
 
   static fromDomain(bird: Bird): BirdResultDto {
     return {
@@ -22,6 +24,8 @@ export class BirdResultDto {
       ecoTrait: bird.ecoTrait,
       districts: bird.districts,
       imageUrl: bird.imageUrl,
+      easyToFind: bird.easyToFind,
+      bookImageUrl: bird.bookImageUrl,
     };
   }
 }

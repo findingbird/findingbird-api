@@ -11,6 +11,8 @@ export interface BirdNewProps {
   ecoTrait: string | null;
   districts: string[];
   imageUrl: string;
+  easyToFind: boolean;
+  bookImageUrl: string | null;
 }
 
 export interface BirdProps extends BirdNewProps, DomainEntityProps {}
@@ -59,6 +61,14 @@ export class Bird extends DomainEntity<BirdProps> {
     if (!this.props.imageUrl) {
       throw new ValidationError(Bird.domainName, 'ImageUrl is required');
     }
+
+    if (this.props.easyToFind === undefined) {
+      throw new ValidationError(Bird.domainName, 'EasyToFind is required');
+    }
+
+    if (this.props.easyToFind === true && this.props.bookImageUrl === null) {
+      throw new ValidationError(Bird.domainName, 'BookImageUrl is required when easy to find');
+    }
   }
 
   // Getters
@@ -92,6 +102,14 @@ export class Bird extends DomainEntity<BirdProps> {
 
   get appearanceCount(): number {
     return this.props.appearanceCount;
+  }
+
+  get easyToFind(): boolean {
+    return this.props.easyToFind;
+  }
+
+  get bookImageUrl(): string | null {
+    return this.props.bookImageUrl;
   }
 
   // Methods

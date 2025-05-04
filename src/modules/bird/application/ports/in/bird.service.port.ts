@@ -8,4 +8,5 @@ export interface IBirdService {
   getBirdById(dto: GetBirdByIdDto): Promise<BirdResultDto>;
   getBirdsByIds(dto: GetBirdsByIdsDto): Promise<BirdResultDto[]>;
   getAllBirds(): Promise<BirdResultDto[]>;
+  getEasyToFindBirds(): Promise<BirdResultDto[]>;
 }

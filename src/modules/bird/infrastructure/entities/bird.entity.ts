@@ -66,4 +66,20 @@ export class BirdEntity extends CoreEntity {
     comment: '이미지 URL',
   })
   imageUrl: string;
+
+  @Column({
+    type: 'boolean',
+    name: 'easy_to_find',
+    comment: '쉽게 찾을 수 있는지 여부(도감 등록 여부)',
+    default: false,
+  })
+  easyToFind: boolean;
+
+  @Column({
+    type: 'varchar',
+    name: 'book_image_url',
+    comment: '도감 이미지 URL',
+    nullable: true,
+  })
+  bookImageUrl: string | null;
 }

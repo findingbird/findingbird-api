@@ -5,8 +5,10 @@ import { InternalServerError } from '~/common/exceptions/InternelServerError';
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { DateUtils } from '~/common/utils/Date.utils';
 import { BIRD_SERVICE, IBirdService } from '~/modules/bird/application/ports/in/bird.service.port';
+import { BirdInBookDataDto, BookResultDto } from '~/modules/goal/application/dtos/book-result.dto';
 import { CompleteGoalDto } from '~/modules/goal/application/dtos/complete-goal.dto';
 import { CreateGoalDto } from '~/modules/goal/application/dtos/create-goal.dto';
+import { GetBookDto } from '~/modules/goal/application/dtos/get-book.dto';
 import { GetGoalByIdDto } from '~/modules/goal/application/dtos/get-goal-by-id.dto';
 import { GetGoalsByMonthDto } from '~/modules/goal/application/dtos/get-goals-by-month.dto';
 import { GetTodayGoalsDto } from '~/modules/goal/application/dtos/get-today-goals.dto';
@@ -133,5 +135,26 @@ export class GoalService implements IGoalService {
       }
       return GoalResultDto.fromDomain(goal, bird);
     });
+  }
+
+  async getBook(dto: GetBookDto): Promise<BookResultDto> {
+    const { userId } = dto;
+    const birdsInBook = await this.birdService.getEasyToFindBirds();
+    const birdIds = birdsInBook.map((bird) => bird.id);
+    const completedGoalsInBook = (await this.goalRepository.findByBirdIds(userId, birdIds)).filter(
+      (goal) => goal.isCompleted
+    );
+    const foundedBirdIds = completedGoalsInBook.map((goal) => goal.birdId);
+
+    const birdInBookData: BirdInBookDataDto[] = birdsInBook.map((bird) => {
+      return {
+        isFound: foundedBirdIds.includes(bird.id),
+        bird,
+      };
+    });
+
+    return {
+      birds: birdInBookData,
+    };
   }
 }
