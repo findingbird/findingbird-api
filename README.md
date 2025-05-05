@@ -1,36 +1,13 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+# FindingBird-api
 
 ## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+시민 참여형 생태 탐사 프로젝트 `{새}^{*}보러가자`의 백엔드 레포지토리입니다.
 
 ## Project setup
 
 ```bash
 $ yarn install
 ```
-
 ## Compile and run the project
 
 ```bash
@@ -44,55 +21,103 @@ $ yarn run start:dev
 $ yarn run start:prod
 ```
 
-## Run tests
+## Deploy
+
+Github Action을 통해 EC2 에 자동배포됩니다.
+
+## Architecture
+
+본 프로젝트는 DDD 설계를 기반으로 하며, Hexagonal Architecture의 개념을 참고해 각 계층을 분리하였습니다.
+
+각 도메인은 4개의 layer로 구성됩니다.
+(본 프로젝트에서 도메인은 `src/modules/` 내의 폴더로 구분됩니다.)
+
+### Domain Layer
+- 해당 도메인 내에서 사용되는 객체(도메인 엔티티 및 값 객체)들을 정의합니다.
+- 각 객체들의 속성과 따라야 할 규칙, 이를 검증하는 로직을 구현합니다.
+- 필요 시 해당 도메인에서 수행되어야 하는 기능(ex. 여러 객체들 중 하나를 추천하는 기능 등)을 구현합니다.
+
+### Application Layer
+- 해당 도메인의 유즈케이스들을 정의합니다. (본 프로젝트에서는 개발의 편의를 위해 여러 유스케이스들을 '서비스'라는 하나의 파일에서 정의합니다.)
+- In/Out 포트를 정의합니다.
+  - In Port: 외부에서 내부 로직을 사용하기 위한 인터페이스 정의(ex. 서비스 인터페이스 등)
+  - Out Port: 내부에서 외부 영역에 접근하기 위한 인터페이스 정의(ex. 레포지토리 인터페이스, 외부 API Client 등)
+- In Port 의 어댑터(실제 구현체)를 구현합니다.
+
+### Infrastructure Layer
+- Out Port 의 인터페이스에 의존하며 해당 포트의 어댑터(실제 구현체)를 구현합니다.
+- 도메인 객체의 영속화를 위한 ORM Entity 및 변환을 위한 Mapper를 정의합니다.
+- 외부 API(ex. OpenAI, AWS S3 등)의 실제 호출을 구현합니다.
+
+### Presentation Layer
+- In Port 의 인터페이스에 의존하며 유즈케이스들을 외부에 드러냅니다.
+- 요청 및 응답 구조를 정의하며 사용자 요청에 대한 검증을 수행합니다.
+- API 에 대한 문서를 작성합니다.
+
+<br>
+
+여러 도메인에 걸친 로직은 다음과 같이 수행합니다.
+
+- 한 도메인에서 다른 도메인의 In Port 인터페이스에 의존하여 로직 수행
+  - 두 도메인이 명확히 독립적이고, 특정 도메인에서 다른 도메인의 기능을 참조만 해야 할 때 수행합니다.
+  - 간단한 협력관계일 때 수행합니다.
+  - (본 프로젝트에서는 개발의 편의를 위해 다른 도메인의 호출을 위한 Out Port를 정의하지는 않습니다.)
+
+- 상위 Orchestration 모듈을 정의한 후 하위 도메인의 인터페이스를 통해 로직 수행
+  - 여러 도메인이 협력하여 하나의 비즈니스 프로세스를 완성할 때 수행합니다.
+  - 조정자 역할(ex. Transaction 경계 설정 등) 이 필요할 때 수행합니다.
+
+## Directory Structure
+
+디렉토리 구조는 다음과 같습니다.
 
 ```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+src/
+├── modules/                        # 도메인별 모듈 모음
+│   ├── bird/                       # 'bird' 도메인
+│   │   ├── domain/                 # Domain Layer
+│   │   │   ├── models/             # 도메인 엔티티 및 값 객체
+│   │   │   └── services/           # 도메인 서비스
+│   │   │
+│   │   ├── application/            # Application Layer
+│   │   │   ├── ports/
+│   │   │   │   ├── in/             # In Port (서비스 인터페이스)
+│   │   │   │   └── out/            # Out Port (레포지토리, API 클라이언트 인터페이스)
+│   │   │   ├── services/           # 유스케이스 구현 (In Port Adapter)
+│   │   │   └── dtos/
+│   │   │
+│   │   ├── infrastructure/         # Infrastructure Layer
+│   │   │   ├── repositories/       # DB 접근 레포지토리 구현 (Out Port Adapter)
+│   │   │   ├── entities/           # ORM Entity
+│   │   │   └── mappers/            # ORM ↔ 도메인 매핑
+│   │   │
+│   │   └── presentation/           # Presentation Layer
+│   │       └── http/               # HTTP 요청 컨트롤러
+│   │           └── dtos/
+│   └── other-domain/
+│       └── ...                     # 동일한 구조
+│
+├── common/                         # 공통 유틸리티 및 예외 처리
+│   ├── models/                     # 도메인 엔티티 및 값 객체의 기본 형태
+│   ├── interceptors/               # 공통 인터셉터(Logging)
+│   ├── filters/                    # 공통 예외필터
+│   ├── exceptions/                 # 공통 예외 객체
+│   ├── utils/                      # 공통 유틸리티
+│   └── ...
+│
+├── config/                         # 환경설정 (DB, 외부 API 등)
+│   ├── typeorm.config.ts
+│   └── ...
+│
+├── app.module.ts
+└── main.ts                         # 애플리케이션 진입점
 ```
 
-## Deployment
+## Technology & Infra
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+NestJS, PostgreSQL, OAuth(Kakao), OpenAI API, AWS S3
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## API DOCS
 
-```bash
-$ yarn install -g mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- [배포 Swagger 문서 보기](https://findingbird.ksssssh.me/docs)
+- (또는 로컬에서 실행 후 `http://localhost:3000/docs` 에서 확인 가능)
