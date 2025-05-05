@@ -18,6 +18,7 @@ import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { FileModule } from '~/modules/file/file.module';
 import { GoalModule } from '~/modules/goal/goal.module';
 import { RecordModule } from '~/modules/record/record.module';
+import { ReportModule } from '~/modules/report/report.module';
 import { UserModule } from '~/modules/user/user.module';
 
 @Module({
@@ -37,6 +38,7 @@ import { UserModule } from '~/modules/user/user.module';
     GoalModule,
     CalendarModule,
     AiModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [
