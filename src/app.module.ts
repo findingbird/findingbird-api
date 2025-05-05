@@ -13,6 +13,7 @@ import { LoggingInterceptor } from '~/common/interceptors/Logging.interceptor';
 import { TypeOrmConfig } from '~/config/typeorm.config';
 import { AiModule } from '~/modules/ai/ai.module';
 import { AuthModule } from '~/modules/auth/auth.module';
+import { BannerModule } from '~/modules/banner/banner.module';
 import { BirdModule } from '~/modules/bird/bird.module';
 import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { FileModule } from '~/modules/file/file.module';
@@ -39,6 +40,7 @@ import { UserModule } from '~/modules/user/user.module';
     CalendarModule,
     AiModule,
     ReportModule,
+    BannerModule,
   ],
   controllers: [AppController],
   providers: [
