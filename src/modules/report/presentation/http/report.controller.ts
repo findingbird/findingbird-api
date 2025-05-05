@@ -32,12 +32,12 @@ export class ReportController {
 
   @Get('/')
   @ApiOperation({
-    summary: '조류 충돌 목록 신고 조회',
+    summary: '조류 충돌 신고 목록 조회',
     description: '조류 충돌 신고 목록을 조회합니다.',
   })
   @ApiResponse({
     status: 200,
-    description: '조류 충돌 목록 조회 성공',
+    description: '조류 충돌 신고 목록 조회 성공',
     type: [ReportPreviewResponseDto],
   })
   async getReports(): Promise<ReportPreviewResponseDto[]> {
