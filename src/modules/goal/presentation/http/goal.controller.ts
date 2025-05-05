@@ -49,8 +49,9 @@ export class GoalController {
     description: '목표 상세 조회 성공',
     type: GoalResponseDto,
   })
-  async getGoalById(@Param('id') goalId: string): Promise<GoalResponseDto> {
-    const goalWithBird = await this.goalService.getGoalById({ goalId });
+  async getGoalById(@Req() req: UserRequest, @Param('id') goalId: string): Promise<GoalResponseDto> {
+    const { userId } = req.user;
+    const goalWithBird = await this.goalService.getGoalById({ goalId, userId });
     return GoalResponseDto.fromData(goalWithBird);
   }
 

@@ -46,8 +46,9 @@ export class RecordController {
     description: '기록 상세 조회 성공',
     type: RecordResponseDto,
   })
-  async getRecordById(@Param('id') recordId: string): Promise<RecordResponseDto> {
-    const record = await this.recordService.getRecordById({ recordId });
+  async getRecordById(@Req() req: UserRequest, @Param('id') recordId: string): Promise<RecordResponseDto> {
+    const { userId } = req.user;
+    const record = await this.recordService.getRecordById({ recordId, userId });
     return RecordResponseDto.fromData(record);
   }
 

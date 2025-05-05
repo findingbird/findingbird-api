@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 
+import { BadRequestError } from '~/common/exceptions/BadRequestError';
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { FILE_SERVICE, IFileService } from '~/modules/file/application/ports/in/file.service.port';
 import { GOAL_SERVICE, IGoalService } from '~/modules/goal/application/ports/in/goal.service.port';
@@ -56,10 +57,14 @@ export class RecordService implements IRecordService {
   }
 
   async getRecordById(dto: GetRecordByIdDto): Promise<RecordResultDto> {
-    const { recordId } = dto;
+    const { recordId, userId } = dto;
     const record = await this.recordRepository.findById(recordId);
     if (!record) {
       throw new NotFoundError(Record.domainName, recordId);
+    }
+
+    if (record.userId !== userId) {
+      throw new BadRequestError(Record.domainName, 'Cannot access record of another user');
     }
 
     return RecordResultDto.fromDomain(record);

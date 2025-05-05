@@ -86,10 +86,14 @@ export class GoalService implements IGoalService {
   }
 
   async getGoalById(dto: GetGoalByIdDto): Promise<GoalResultDto> {
-    const { goalId } = dto;
+    const { goalId, userId } = dto;
     const goal = await this.goalRepository.findById(goalId);
     if (!goal) {
       throw new NotFoundError(Goal.domainName, goalId);
+    }
+
+    if (goal.userId !== userId) {
+      throw new BadRequestError(Goal.domainName, '해당 목표는 다른 사용자의 목표입니다.');
     }
 
     const bird = await this.birdService.getBirdById({ birdId: goal.birdId });
