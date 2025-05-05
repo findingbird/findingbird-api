@@ -23,6 +23,6 @@ import { UserModule } from '~/modules/user/user.module';
       useClass: ReportRepository,
     },
   ],
-  exports: [],
+  exports: [REPORT_SERVICE],
 })
 export class ReportModule {}

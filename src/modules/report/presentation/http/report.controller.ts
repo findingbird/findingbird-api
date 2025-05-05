@@ -31,8 +31,6 @@ export class ReportController {
   ) {}
 
   @Get('/')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: '조류 충돌 목록 신고 조회',
     description: '조류 충돌 신고 목록을 조회합니다.',
@@ -48,8 +46,6 @@ export class ReportController {
   }
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     summary: '조류 충돌 신고 상세 조회',
     description: '조류 충돌 신고의 상세 정보를 조회합니다.',
@@ -79,6 +75,11 @@ export class ReportController {
   })
   @ApiBody({
     type: CreateReportSwaggerDto,
+  })
+  @ApiResponse({
+    status: 201,
+    description: '조류 충돌 신고 생성 성공',
+    type: ReportResponseDto,
   })
   @UseInterceptors(FileInterceptor('image'))
   async createReport(
