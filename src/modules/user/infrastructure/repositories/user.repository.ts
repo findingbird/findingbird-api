@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { IUserRepository } from '~/modules/user/application/ports/out/user.repository.port';
 import { User } from '~/modules/user/domain/models/user';
@@ -17,6 +17,11 @@ export class UserRepository implements IUserRepository {
   async findById(id: string): Promise<User | null> {
     const userEntity = await this.userRepository.findOne({ where: { id } });
     return userEntity ? UserMapper.toDomain(userEntity) : null;
+  }
+
+  async findByIds(ids: string[]): Promise<User[]> {
+    const userEntities = await this.userRepository.findBy({ id: In(ids) });
+    return UserMapper.toDomains(userEntities);
   }
 
   async save(user: User): Promise<void>;

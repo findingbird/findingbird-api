@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { GetUserByIdDto } from '~/modules/user/application/dtos/get-user-by-id.dto';
+import { getUsersByIdsDto } from '~/modules/user/application/dtos/get-users-by-ids.dto';
 import { UserResultDto } from '~/modules/user/application/dtos/user-result.dto';
 import { IUserService } from '~/modules/user/application/ports/in/user.service.port';
 import { IUserRepository, USER_REPOSITORY } from '~/modules/user/application/ports/out/user.repository.port';
@@ -27,5 +28,11 @@ export class UserService implements IUserService {
       throw new NotFoundError(User.domainName, userId);
     }
     return UserResultDto.fromDomain(user);
+  }
+
+  async getUsersByIds(dto: getUsersByIdsDto): Promise<UserResultDto[]> {
+    const { ids } = dto;
+    const users = await this.userRepository.findByIds(ids);
+    return users.map((user) => UserResultDto.fromDomain(user));
   }
 }
