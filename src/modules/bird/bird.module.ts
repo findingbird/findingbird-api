@@ -6,10 +6,11 @@ import { BIRD_REPOSITORY } from '~/modules/bird/application/ports/out/bird.repos
 import { BirdService } from '~/modules/bird/application/services/bird.service';
 import { BirdEntity } from '~/modules/bird/infrastructure/entities/bird.entity';
 import { BirdRepository } from '~/modules/bird/infrastructure/repositories/bird.repository';
+import { BirdController } from '~/modules/bird/presentation/http/bird.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BirdEntity])],
-  controllers: [],
+  controllers: [BirdController],
   providers: [
     {
       provide: BIRD_SERVICE,
