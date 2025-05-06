@@ -42,7 +42,7 @@ export class GoalService implements IGoalService {
       throw new BadRequestError(Goal.domainName, '최대 3개의 목표를 생성할 수 있습니다.');
     }
 
-    const birds = await this.birdService.getAllBirds();
+    const birds = await this.birdService.getFrequentlySeenBirds();
     const birdsInBook = birds.filter((bird) => bird.easyToFind);
 
     const foundedBirdIds = prevGoals.filter((goal) => goal.isCompleted).map((goal) => goal.birdId);
