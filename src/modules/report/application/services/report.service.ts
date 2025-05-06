@@ -75,7 +75,7 @@ export class ReportService implements IReportService {
   async getAllReports(): Promise<ReportResultDto[]> {
     const reports = await this.reportRepository.findMany({});
     const users = await this.userService.getUsersByIds({
-      ids: reports.map((report) => report.userId),
+      userIds: reports.map((report) => report.userId),
     });
     const userMap = new Map<string, UserResultDto>();
     users.forEach((user) => {

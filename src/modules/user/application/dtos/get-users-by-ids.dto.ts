@@ -1,3 +1,3 @@
 export class getUsersByIdsDto {
-  readonly ids: string[];
+  readonly userIds: string[];
 }

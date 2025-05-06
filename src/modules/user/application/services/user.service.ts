@@ -31,8 +31,13 @@ export class UserService implements IUserService {
   }
 
   async getUsersByIds(dto: getUsersByIdsDto): Promise<UserResultDto[]> {
-    const { ids } = dto;
-    const users = await this.userRepository.findByIds(ids);
+    const { userIds } = dto;
+    const uniqueUserIds = [...new Set(userIds)];
+    const users = await this.userRepository.findByIds(uniqueUserIds);
+    if (users.length !== uniqueUserIds.length) {
+      const notFoundUserIds = uniqueUserIds.filter((userId) => !users.some((user) => user.id === userId));
+      throw new NotFoundError(User.domainName, notFoundUserIds.join(', '));
+    }
     return users.map((user) => UserResultDto.fromDomain(user));
   }
 }
