@@ -6,7 +6,6 @@ export class BannerResultDto {
   readonly id: string;
   readonly title: string;
   readonly imageUrl: string;
-  readonly imageFileId: string;
   readonly link: string;
   readonly createdAt: Dayjs;
 
@@ -15,7 +14,6 @@ export class BannerResultDto {
       id: banner.id,
       title: banner.title,
       imageUrl: banner.imageUrl,
-      imageFileId: banner.imageFileId,
       link: banner.link,
       createdAt: banner.createdAt,
     };

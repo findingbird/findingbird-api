@@ -6,7 +6,6 @@ export class BannerMapper {
   static toDomain(entity: BannerEntity): Banner {
     const bannerProps: BannerProps = {
       title: entity.title,
-      imageFileId: entity.imageFileId,
       imageUrl: entity.imageUrl,
       link: entity.link,
       createdAt: DateUtils.toKst(entity.createdAt),
@@ -28,7 +27,6 @@ export class BannerMapper {
 
     bannerEntity.id = banner.id;
     bannerEntity.title = banner.title;
-    bannerEntity.imageFileId = banner.imageFileId;
     bannerEntity.imageUrl = banner.imageUrl;
     bannerEntity.link = banner.link;
     bannerEntity.createdAt = DateUtils.toUtcDate(banner.createdAt);

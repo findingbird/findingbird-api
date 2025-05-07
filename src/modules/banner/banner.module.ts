@@ -7,10 +7,9 @@ import { BannerService } from '~/modules/banner/application/services/banner.serv
 import { BannerEntity } from '~/modules/banner/infrastructure/entities/banner.entity';
 import { BannerRepository } from '~/modules/banner/infrastructure/repositories/banner.repository';
 import { BannerController } from '~/modules/banner/presentation/http/banner.controller';
-import { FileModule } from '~/modules/file/file.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BannerEntity]), FileModule],
+  imports: [TypeOrmModule.forFeature([BannerEntity])],
   controllers: [BannerController],
   providers: [
     {

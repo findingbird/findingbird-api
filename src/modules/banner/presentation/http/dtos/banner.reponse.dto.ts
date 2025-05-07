@@ -23,12 +23,6 @@ export class BannerResponseDto {
   link: string;
 
   @ApiProperty({
-    description: 'image 파일 Id',
-    example: '550e5ba2-62dd-4903-bfa7-80ac57d63721',
-  })
-  imageFileId: string;
-
-  @ApiProperty({
     description: 'image 파일 URL',
     example: 'https://example.com/image.jpg',
   })
@@ -45,7 +39,6 @@ export class BannerResponseDto {
       id: banner.id,
       title: banner.title,
       link: banner.link,
-      imageFileId: banner.imageFileId,
       imageUrl: banner.imageUrl,
       createdAt: DateUtils.format(banner.createdAt),
     };

@@ -16,13 +16,6 @@ export class BannerEntity extends CoreEntity {
 
   @Column({
     type: 'varchar',
-    name: 'image_file_id',
-    comment: '배너 이미지 파일 ID',
-  })
-  imageFileId: string;
-
-  @Column({
-    type: 'varchar',
     name: 'image_url',
     comment: '배너 이미지 URL',
   })

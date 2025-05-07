@@ -4,7 +4,6 @@ import { DateUtils } from '~/common/utils/Date.utils';
 
 export interface BannerNewProps {
   title: string;
-  imageFileId: string;
   imageUrl: string;
   link: string;
 }
@@ -39,10 +38,6 @@ export class Banner extends DomainEntity<BannerProps> {
       throw new ValidationError(Banner.domainName, 'Title is required');
     }
 
-    if (!this.props.imageFileId) {
-      throw new ValidationError(Banner.domainName, 'ImageFileId is required');
-    }
-
     if (!this.props.imageUrl) {
       throw new ValidationError(Banner.domainName, 'ImageUrl is required');
     }
@@ -55,10 +50,6 @@ export class Banner extends DomainEntity<BannerProps> {
   // Getters
   get title(): string {
     return this.props.title;
-  }
-
-  get imageFileId(): string {
-    return this.props.imageFileId;
   }
 
   get imageUrl(): string {
