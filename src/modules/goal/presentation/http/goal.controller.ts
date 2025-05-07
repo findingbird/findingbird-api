@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { Body, Controller, Get, Inject, Post, Req, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
@@ -30,29 +30,6 @@ export class GoalController {
     const { userId } = req.user;
     const goalWithBirds = await this.goalService.getTodayGoals({ userId });
     return goalWithBirds.map((goalWithBird) => GoalResponseDto.fromData(goalWithBird));
-  }
-
-  @Get('/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({
-    summary: '목표 상세 조회',
-    description: '목표의 상세 정보를 조회합니다.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: '목표 ID',
-    required: true,
-  })
-  @ApiResponse({
-    status: 200,
-    description: '목표 상세 조회 성공',
-    type: GoalResponseDto,
-  })
-  async getGoalById(@Req() req: UserRequest, @Param('id') goalId: string): Promise<GoalResponseDto> {
-    const { userId } = req.user;
-    const goalWithBird = await this.goalService.getGoalById({ goalId, userId });
-    return GoalResponseDto.fromData(goalWithBird);
   }
 
   @Post('/')

@@ -1,17 +1,6 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Param,
-  Post,
-  Req,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Body, Controller, Inject, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '~/common/guards/jwt-auth-guard';
 import { UserRequest } from '~/common/interfaces/user-request.interface';
@@ -28,29 +17,6 @@ export class RecordController {
     @Inject(RECORD_SERVICE)
     private readonly recordService: IRecordService
   ) {}
-
-  @Get('/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth('access-token')
-  @ApiOperation({
-    summary: '기록 상세 조회',
-    description: '기록의 상세 정보를 조회합니다.',
-  })
-  @ApiParam({
-    name: 'id',
-    description: '기록 ID',
-    required: true,
-  })
-  @ApiResponse({
-    status: 200,
-    description: '기록 상세 조회 성공',
-    type: RecordResponseDto,
-  })
-  async getRecordById(@Req() req: UserRequest, @Param('id') recordId: string): Promise<RecordResponseDto> {
-    const { userId } = req.user;
-    const record = await this.recordService.getRecordById({ recordId, userId });
-    return RecordResponseDto.fromData(record);
-  }
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
