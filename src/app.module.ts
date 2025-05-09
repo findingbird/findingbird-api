@@ -18,6 +18,7 @@ import { BirdModule } from '~/modules/bird/bird.module';
 import { CalendarModule } from '~/modules/calendar/calendar.module';
 import { FileModule } from '~/modules/file/file.module';
 import { GoalModule } from '~/modules/goal/goal.module';
+import { OnboardingModule } from '~/modules/onboarding/onboarding.module';
 import { RecordModule } from '~/modules/record/record.module';
 import { ReportModule } from '~/modules/report/report.module';
 import { UserModule } from '~/modules/user/user.module';
@@ -41,6 +42,7 @@ import { UserModule } from '~/modules/user/user.module';
     AiModule,
     ReportModule,
     BannerModule,
+    OnboardingModule,
   ],
   controllers: [AppController],
   providers: [

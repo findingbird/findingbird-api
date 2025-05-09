@@ -1,6 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
+import {
+  IOnboardingService,
+  ONBOARDING_SERVICE,
+} from '~/modules/onboarding/application/ports/in/onboarding.service.port';
 import { GetUserByIdDto } from '~/modules/user/application/dtos/get-user-by-id.dto';
 import { getUsersByIdsDto } from '~/modules/user/application/dtos/get-users-by-ids.dto';
 import { UserResultDto } from '~/modules/user/application/dtos/user-result.dto';
@@ -12,12 +16,15 @@ import { User } from '~/modules/user/domain/models/user';
 export class UserService implements IUserService {
   constructor(
     @Inject(USER_REPOSITORY)
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
+    @Inject(ONBOARDING_SERVICE)
+    private readonly onboardingService: IOnboardingService
   ) {}
 
   async createUser(): Promise<UserResultDto> {
     const user = User.createNew({});
     await this.userRepository.save(user);
+    await this.onboardingService.onboarding({ userId: user.id });
     return UserResultDto.fromDomain(user);
   }
 

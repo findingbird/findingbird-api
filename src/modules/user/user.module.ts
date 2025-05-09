@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { OnboardingModule } from '~/modules/onboarding/onboarding.module';
 import { USER_SERVICE } from '~/modules/user/application/ports/in/user.service.port';
 import { USER_REPOSITORY } from '~/modules/user/application/ports/out/user.repository.port';
 import { UserService } from '~/modules/user/application/services/user.service';
@@ -9,7 +10,7 @@ import { UserRepository } from '~/modules/user/infrastructure/repositories/user.
 import { UserController } from '~/modules/user/presentation/http/user.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserEntity])],
+  imports: [TypeOrmModule.forFeature([UserEntity]), OnboardingModule],
   controllers: [UserController],
   providers: [
     {
