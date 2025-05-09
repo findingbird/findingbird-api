@@ -1,6 +1,5 @@
 import { Dayjs } from 'dayjs';
 
-import { NotFoundError } from '~/common/exceptions/NotFoundError';
 import { UnauthorizedError } from '~/common/exceptions/UnauthorizedError';
 import { ValidationError } from '~/common/exceptions/ValidatioinError';
 import { DomainEntity, DomainEntityProps } from '~/common/models/DomainEntity';
@@ -94,7 +93,7 @@ export class Auth extends DomainEntity<AuthProps> {
   public verifyRefreshToken(refreshToken: string): void {
     const foundToken = this.props.refreshTokens.find((t) => t.token === refreshToken);
     if (!foundToken) {
-      throw new NotFoundError(Auth.domainName, 'Refresh token not found');
+      throw new UnauthorizedError(Auth.domainName, 'Refresh token not found');
     }
     if (foundToken.isExpired()) {
       throw new UnauthorizedError(Auth.domainName, 'Refresh token expired');
