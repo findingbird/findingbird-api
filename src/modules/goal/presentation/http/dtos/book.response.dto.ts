@@ -11,12 +11,6 @@ export class BirdInBookDto {
   isFound: boolean;
 
   @ApiProperty({
-    description: '도감 이미지',
-    example: 'https://example.com/image.jpg',
-  })
-  bookImageUrl: string;
-
-  @ApiProperty({
     description: '새 정보',
     type: BirdResponseDto,
   })
@@ -34,8 +28,7 @@ export class BookResponseDto {
     return {
       birds: book.birds.map((bird) => ({
         isFound: bird.isFound,
-        bookImageUrl: bird.bird.bookImageUrl || '이미지 주소',
-        bird: BirdResponseDto.fromData(bird.bird),
+        bird: BirdResponseDto.getBookFromData(bird.bird),
       })),
     };
   }
