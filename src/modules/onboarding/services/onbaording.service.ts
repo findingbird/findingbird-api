@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import axios from 'axios';
+import * as fs from 'fs';
 import * as path from 'path';
 import { Readable } from 'stream';
 
@@ -32,7 +33,12 @@ export class OnboardingService implements IOnboardingService {
       const randomBird = birds[Math.floor(Math.random() * birds.length)];
       const randomDate = now.subtract(Math.floor(Math.random() * 30), 'days');
 
-      const imageFile = await this.createFileFromUrl(randomBird.imageUrl);
+      let imageFile: Express.Multer.File;
+      try {
+        imageFile = await this.createFileFromUrl(randomBird.imageUrl);
+      } catch (_error) {
+        continue;
+      }
 
       await this.recordService.createRecordForOnboarding({
         userId,
@@ -76,8 +82,53 @@ export class OnboardingService implements IOnboardingService {
       };
 
       return file;
-    } catch (error) {
-      throw new Error(`이미지 다운로드 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
+    } catch (_error) {
+      const sampleImages = [
+        path.join(process.cwd(), 'src/modules/onboarding/resources/bird1.jpg'),
+        path.join(process.cwd(), 'src/modules/onboarding/resources/bird2.jpg'),
+        path.join(process.cwd(), 'src/modules/onboarding/resources/bird3.jpg'),
+        path.join(process.cwd(), 'src/modules/onboarding/resources/bird4.jpg'),
+        path.join(process.cwd(), 'src/modules/onboarding/resources/bird5.jpg'),
+      ];
+      const randomIndex = Math.floor(Math.random() * sampleImages.length);
+      return this.createFileFromLocalPath(sampleImages[randomIndex]);
+    }
+  }
+
+  private createFileFromLocalPath(imagePath: string): Express.Multer.File {
+    // 파일 읽기
+    const buffer = fs.readFileSync(imagePath);
+    const originalname = path.basename(imagePath);
+
+    // MIME 타입 추론
+    const mimetype = this.getMimeType(originalname);
+
+    return {
+      fieldname: 'image',
+      originalname,
+      encoding: '7bit',
+      mimetype,
+      size: buffer.length,
+      buffer,
+      stream: Readable.from(buffer),
+      destination: '',
+      filename: originalname,
+      path: '',
+    };
+  }
+
+  private getMimeType(filename: string): string {
+    const ext = path.extname(filename).toLowerCase();
+    switch (ext) {
+      case '.jpg':
+      case '.jpeg':
+        return 'image/jpeg';
+      case '.png':
+        return 'image/png';
+      case '.gif':
+        return 'image/gif';
+      default:
+        return 'application/octet-stream';
     }
   }
 }
