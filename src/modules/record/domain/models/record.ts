@@ -1,3 +1,5 @@
+import { Dayjs } from 'dayjs';
+
 import { ValidationError } from '~/common/exceptions/ValidatioinError';
 import { DomainEntity, DomainEntityProps } from '~/common/models/DomainEntity';
 import { DateUtils } from '~/common/utils/Date.utils';
@@ -12,6 +14,18 @@ export interface RecordNewProps {
   color: string;
   locationDescription: string;
   goalId: string | null;
+}
+
+export interface RecordNewPropsForOnboarding {
+  userId: string;
+  imageFileId: string;
+  imageUrl: string;
+  name: string | null;
+  district: string;
+  size: string;
+  color: string;
+  locationDescription: string;
+  createdAt: Dayjs;
 }
 
 export interface RecordProps extends RecordNewProps, DomainEntityProps {}
@@ -33,6 +47,18 @@ export class Record extends DomainEntity<RecordProps> {
     const now = DateUtils.now();
     return this.create(id, {
       ...newProps,
+      createdAt: now,
+      updatedAt: now,
+      deletedAt: null,
+    });
+  }
+
+  public static createNewForOnboarding(newProps: RecordNewPropsForOnboarding): Record {
+    const id = crypto.randomUUID();
+    const now = newProps.createdAt;
+    return this.create(id, {
+      ...newProps,
+      goalId: null,
       createdAt: now,
       updatedAt: now,
       deletedAt: null,
