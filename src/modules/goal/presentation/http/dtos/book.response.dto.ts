@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
 import { BookResultDto } from '~/modules/goal/application/dtos/book-result.dto';
-import { BirdResponseDto } from '~/modules/goal/presentation/http/dtos/bird.response.dto';
+import { BirdWithDotResponseDto } from '~/modules/goal/presentation/http/dtos/bird-with-dot.response.dto';
 
 export class BirdInBookDto {
   @ApiProperty({
@@ -12,9 +12,9 @@ export class BirdInBookDto {
 
   @ApiProperty({
     description: '새 정보',
-    type: BirdResponseDto,
+    type: BirdWithDotResponseDto,
   })
-  bird: BirdResponseDto;
+  bird: BirdWithDotResponseDto;
 }
 
 export class BookResponseDto {
@@ -28,7 +28,7 @@ export class BookResponseDto {
     return {
       birds: book.birds.map((bird) => ({
         isFound: bird.isFound,
-        bird: BirdResponseDto.getBookFromData(bird.bird),
+        bird: BirdWithDotResponseDto.fromData(bird.bird),
       })),
     };
   }

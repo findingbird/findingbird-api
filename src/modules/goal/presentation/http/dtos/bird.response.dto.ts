@@ -91,18 +91,4 @@ export class BirdResponseDto {
       imageUrl: birdResult.imageUrl,
     };
   }
-
-  static getBookFromData(birdResult: BirdResultDto): BirdResponseDto {
-    return {
-      id: birdResult.id,
-      speciesName: birdResult.speciesName,
-      scientificName: birdResult.scientificName,
-      habitatType: birdResult.habitatType,
-      appearanceCount: birdResult.appearanceCount,
-      morphoTrait: birdResult.morphoTrait,
-      ecoTrait: birdResult.ecoTrait,
-      districts: birdResult.districts,
-      imageUrl: birdResult.bookImageUrl || '',
-    };
-  }
 }
