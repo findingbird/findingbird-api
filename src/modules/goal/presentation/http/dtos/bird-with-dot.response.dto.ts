@@ -5,15 +5,16 @@ import { BirdResponseDto } from '~/modules/goal/presentation/http/dtos/bird.resp
 
 export class BirdWithDotResponseDto extends BirdResponseDto {
   @ApiProperty({
-    description: '도트 이미지 URL',
+    description: '실제 새 이미지 URL',
     example: 'https://example.com/bird.jpg',
   })
-  dotImageUrl: string;
+  realImageUrl: string;
 
   static fromData(birdResult: BirdResultDto): BirdWithDotResponseDto {
     return {
       ...BirdResponseDto.fromData(birdResult),
-      dotImageUrl:
+      realImageUrl: birdResult.imageUrl,
+      imageUrl:
         birdResult.bookImageUrl ||
         'https://findingbird.s3.ap-northeast-2.amazonaws.com/birdbook/%EC%A7%91%EB%B9%84%EB%91%98%EA%B8%B0.png',
     };
