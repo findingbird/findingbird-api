@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
 import { NotFoundError } from '~/common/exceptions/NotFoundError';
+import { UnauthorizedError } from '~/common/exceptions/UnauthorizedError';
 import { DateUtils } from '~/common/utils/Date.utils';
 import { KakaoLoginDto } from '~/modules/auth/application/dtos/kakao-login.dto';
 import { RefreshTokenDto } from '~/modules/auth/application/dtos/refresh-token.dto';
@@ -42,11 +43,20 @@ export class AuthService {
     return token;
   }
 
+  async validateAccessToken(dto: JwtPayload): Promise<JwtPayload> {
+    const { userId } = dto;
+    const auth = await this.authRepository.findByUserId(userId);
+    if (!auth) {
+      throw new UnauthorizedError(Auth.domainName, '사용자를 찾을 수 없습니다.');
+    }
+    return dto;
+  }
+
   async refreshToken(dto: RefreshTokenDto): Promise<TokenDto> {
     const { userId, refreshToken } = dto;
     const auth = await this.authRepository.findByUserId(userId);
     if (!auth) {
-      throw new NotFoundError(Auth.domainName);
+      throw new NotFoundError(Auth.domainName, '사용자를 찾을 수 없습니다.');
     }
     auth.verifyRefreshToken(refreshToken);
     const token = this.generateToken(auth);
