@@ -22,7 +22,7 @@ export class AIService implements IAIService {
     }
     messages.push({ role: 'user', content: user });
     const completion = await this.openAIClient.invoke({
-      model: options?.model ?? 'gpt-3.5-turbo',
+      model: options?.model ?? 'gpt-4o-mini',
       messages,
       temperature: options?.temperature ?? 0.7,
       max_tokens: options?.max_tokens ?? 1024,
