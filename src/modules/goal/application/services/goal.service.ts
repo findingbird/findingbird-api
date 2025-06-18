@@ -55,6 +55,7 @@ export class GoalService implements IGoalService {
       // 도감이 다 채워졌으면 모든 새로부터 추천
       // 도감이 다 채워지지 않았으면 도감에 있는 새들로부터 추천
       availableBirds: bookCompleted ? birds : birdsInBook,
+      isBookCompleted: bookCompleted,
     });
 
     const goal = Goal.createNew({

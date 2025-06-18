@@ -1676,6 +1676,11 @@
   dependencies:
     consola "^3.2.3"
 
+"@pinecone-database/pinecone@^6.1.1":
+  version "6.1.1"
+  resolved "https://registry.yarnpkg.com/@pinecone-database/pinecone/-/pinecone-6.1.1.tgz#4b79b7128ab14231d60f5b684618a6871ca46cb1"
+  integrity sha512-wstOV6gVdShi1PMrrmmgj2md5NwoVL3SS4brOiuxlGv2m0kiYBSxkvi6cx8S4dWkA/mfi1fzwmZ2YX64K+yaMA==
+
 "@pkgjs/parseargs@^0.11.0":
   version "0.11.0"
   resolved "https://registry.npmjs.org/@pkgjs/parseargs/-/parseargs-0.11.0.tgz"

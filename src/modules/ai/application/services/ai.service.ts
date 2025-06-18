@@ -1,33 +1,26 @@
 import { Inject } from '@nestjs/common';
 
-import { LLMPromptDto } from '~/modules/ai/application/dtos/llm-prompt.dto';
+import { LLMRequestDto } from '~/modules/ai/application/dtos/llm-request.dto';
 import { LLMResponseDto } from '~/modules/ai/application/dtos/llm-response.dto';
 import { IAIService } from '~/modules/ai/application/ports/in/ai.service.port';
-import { IOpenAIClient, OPENAI_CLIENT } from '~/modules/ai/application/ports/out/openai.client.port';
+import { EMBEDDING_SERVICE, IEmbeddingService } from '~/modules/ai/application/ports/out/embedding.service.port';
+import { GENERATOR_SERVICE, IGeneratorService } from '~/modules/ai/application/ports/out/generator.service.port';
+import { IRetrieverService, RETRIEVER_SERVICE } from '~/modules/ai/application/ports/out/retriever.service.port';
 
 export class AIService implements IAIService {
   constructor(
-    @Inject(OPENAI_CLIENT)
-    private readonly openAIClient: IOpenAIClient
+    @Inject(EMBEDDING_SERVICE)
+    private readonly embeddingService: IEmbeddingService,
+    @Inject(RETRIEVER_SERVICE)
+    private readonly retrieverService: IRetrieverService,
+    @Inject(GENERATOR_SERVICE)
+    private readonly generatorService: IGeneratorService
   ) {}
 
-  async getLLMResponse(prompt: LLMPromptDto): Promise<LLMResponseDto> {
-    const { system, user, options } = prompt;
-    const messages: Array<{
-      role: 'user' | 'assistant' | 'system';
-      content: string;
-    }> = [];
-    if (system) {
-      messages.push({ role: 'system', content: system });
-    }
-    messages.push({ role: 'user', content: user });
-    const completion = await this.openAIClient.invoke({
-      model: options?.model ?? 'gpt-4o-mini',
-      messages,
-      temperature: options?.temperature ?? 0.7,
-      max_tokens: options?.max_tokens ?? 1024,
-    });
-    const response = completion.result;
-    return { response };
+  async getLLMResponse(request: LLMRequestDto): Promise<LLMResponseDto> {
+    const embedding = await this.embeddingService.embedText(request.user);
+    const documents = await this.retrieverService.retrieve(embedding, request.retrieveFilter, 10);
+    const response = await this.generatorService.generateResponse(request, documents);
+    return response;
   }
 }

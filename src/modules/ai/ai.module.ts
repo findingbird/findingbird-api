@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
 
 import { AI_SERVICE } from '~/modules/ai/application/ports/in/ai.service.port';
-import { OPENAI_CLIENT } from '~/modules/ai/application/ports/out/openai.client.port';
+import { EMBEDDING_SERVICE } from '~/modules/ai/application/ports/out/embedding.service.port';
+import { GENERATOR_SERVICE } from '~/modules/ai/application/ports/out/generator.service.port';
+import { RETRIEVER_SERVICE } from '~/modules/ai/application/ports/out/retriever.service.port';
 import { AIService } from '~/modules/ai/application/services/ai.service';
-import { OpenAIClient } from '~/modules/ai/infrastructure/openai/openai.client';
+import { OpenAIEmbeddingService } from '~/modules/ai/infrastructure/openai/openai-embedding.service';
+import { OpenAIGeneratorService } from '~/modules/ai/infrastructure/openai/openai-generator.service';
+import { PineconeRetrieverService } from '~/modules/ai/infrastructure/pinecone/pinecone-retriever.service';
 
 @Module({
   imports: [],
@@ -14,8 +18,16 @@ import { OpenAIClient } from '~/modules/ai/infrastructure/openai/openai.client';
       useClass: AIService,
     },
     {
-      provide: OPENAI_CLIENT,
-      useClass: OpenAIClient,
+      provide: EMBEDDING_SERVICE,
+      useClass: OpenAIEmbeddingService,
+    },
+    {
+      provide: RETRIEVER_SERVICE,
+      useClass: PineconeRetrieverService,
+    },
+    {
+      provide: GENERATOR_SERVICE,
+      useClass: OpenAIGeneratorService,
     },
   ],
   exports: [AI_SERVICE],
